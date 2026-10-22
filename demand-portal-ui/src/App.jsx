@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import SSOLogin from './SSOLogin';
 import DemandForm from './DemandForm';
 import AdminDashboard from './AdminDashboard';
+import AdminReportsDashboard from './AdminReportsDashboard';
 
 export default function App() {
   const [currentUser, setCurrentUser] = useState(null);
@@ -36,7 +37,7 @@ export default function App() {
       <header className="bg-[#05050A] border-b border-[#161224] px-6 md:px-8 py-3 shadow-2xl relative">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           
-          {/* Left: Official 15-Year Logo Asset from public/ */}
+          {/* Left: Official 15-Year Logo Asset */}
           <div className="flex items-center gap-3">
             <img 
               src="/tiger-15th-logo.png" 
@@ -74,10 +75,11 @@ export default function App() {
         <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-gradient-to-r from-[#E01A8A] via-[#8F00FF] to-[#00F0FF] opacity-90" />
       </header>
 
-      {/* Navigation Bar */}
+      {/* Navigation Bar (Markup #14: Extends Admin Tabs to include Reports) */}
       <nav className="bg-[#0D0B18] border-b border-slate-800/80 px-6 md:px-8 shadow-inner">
         <div className="max-w-7xl mx-auto flex gap-6">
-          {/* Only non-admin employees see 'Submit New Request' */}
+          
+          {/* Non-Admin Employee Tab */}
           {!isAdmin && (
             <button
               onClick={() => setView('form')}
@@ -91,7 +93,7 @@ export default function App() {
             </button>
           )}
 
-          {/* Ledger View Tab */}
+          {/* Operational Ledger / Dashboard Tab */}
           <button
             onClick={() => setView('dashboard')}
             className={`py-3.5 text-xs font-bold border-b-2 transition-all cursor-pointer ${
@@ -102,6 +104,20 @@ export default function App() {
           >
             {isAdmin ? 'Admin / Partner Dashboard' : 'My Requests'}
           </button>
+
+          {/* Admin Reports Tab (Markup #14) */}
+          {isAdmin && (
+            <button
+              onClick={() => setView('reports')}
+              className={`py-3.5 text-xs font-bold border-b-2 transition-all cursor-pointer ${
+                view === 'reports'
+                  ? 'border-[#E01A8A] text-[#E01A8A]'
+                  : 'border-transparent text-slate-400 hover:text-white'
+              }`}
+            >
+              Reports
+            </button>
+          )}
         </div>
       </nav>
 
@@ -125,7 +141,7 @@ export default function App() {
         )}
 
         {/* View Router */}
-        {view === 'form' && !isAdmin ? (
+        {view === 'form' && !isAdmin && (
           <DemandForm
             currentUser={currentUser}
             onSubmitted={(id) => {
@@ -133,8 +149,14 @@ export default function App() {
               setView('dashboard');
             }}
           />
-        ) : (
+        )}
+
+        {view === 'dashboard' && (
           <AdminDashboard currentUser={currentUser} />
+        )}
+
+        {view === 'reports' && isAdmin && (
+          <AdminReportsDashboard />
         )}
       </main>
     </div>

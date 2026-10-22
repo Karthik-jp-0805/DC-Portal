@@ -16,7 +16,7 @@ export default function SSOLogin({ onLoginSuccess }) {
     const name = roleSelection === 'demand_creation' ? 'Karthikeyan Jayaprakash' : 'Portal Admin';
 
     try {
-      const res = await fetch('http://localhost:8000/api/v1/auth/google-sso', {
+      const res = await fetch('/api/v1/auth/google-sso', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, user_type: userType, stakeholder_role: stakeholderRole })
@@ -27,7 +27,7 @@ export default function SSOLogin({ onLoginSuccess }) {
 
       onLoginSuccess(data.user || { email, user_type: userType, role: stakeholderRole, name });
     } catch (err) {
-      // Local fallback in case the FastAPI backend is running offline
+      // Local fallback for offline simulation
       onLoginSuccess({
         email,
         user_type: userType,
@@ -40,84 +40,132 @@ export default function SSOLogin({ onLoginSuccess }) {
   };
 
   return (
-    <div className="relative min-h-screen w-full bg-[#05050A] flex items-center justify-center p-4 font-sans overflow-hidden">
+    // Canvas: Pearl (#F8FAFC) with soft ambient pastel celebration glows
+    <div className="relative min-h-screen w-full bg-[#F8FAFC] flex items-center justify-center p-4 font-sans overflow-hidden">
       
-      {/* Ambient Glowing Wave Orbs */}
-      <div className="absolute -left-48 top-1/4 w-[620px] h-[620px] rounded-full bg-[#E01A8A]/20 blur-[140px] pointer-events-none" />
-      <div className="absolute -right-48 bottom-1/4 w-[620px] h-[620px] rounded-full bg-[#00F0FF]/15 blur-[150px] pointer-events-none" />
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[850px] h-[500px] rounded-full bg-[#161224]/80 blur-[110px] pointer-events-none" />
+      {/* Ambient Faded Wave Orbs */}
+      <div 
+        className="absolute -left-48 top-1/4 w-[650px] h-[650px] rounded-full bg-[#FCE7F3]/70 blur-[130px] pointer-events-none" 
+        aria-hidden="true"
+      />
+      <div 
+        className="absolute -right-48 bottom-1/4 w-[650px] h-[650px] rounded-full bg-[#ECFEFF]/80 blur-[130px] pointer-events-none" 
+        aria-hidden="true"
+      />
+      <div 
+        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[850px] h-[550px] rounded-full bg-[#F1F5F9]/60 blur-[120px] pointer-events-none" 
+        aria-hidden="true"
+      />
 
-      {/* Decorative Wave Accent Curves */}
+      {/* Decorative Subtle Wave Vectors */}
       <svg 
-        className="absolute inset-0 w-full h-full pointer-events-none opacity-30" 
+        className="absolute inset-0 w-full h-full pointer-events-none opacity-40" 
         xmlns="http://www.w3.org/2000/svg"
         preserveAspectRatio="none"
         viewBox="0 0 1440 900"
       >
-        <path d="M-100,500 C300,750 650,250 1100,600 C1300,750 1500,450 1600,400" fill="none" stroke="#E01A8A" strokeWidth="2" opacity="0.6" />
-        <path d="M-50,300 C400,100 800,800 1250,350 C1400,200 1550,500 1600,550" fill="none" stroke="#00F0FF" strokeWidth="2" opacity="0.6" />
+        <path 
+          d="M-100,500 C300,750 650,250 1100,600 C1300,750 1500,450 1600,400" 
+          fill="none" 
+          stroke="url(#magentaWaveLight)" 
+          strokeWidth="2" 
+        />
+        <path 
+          d="M-50,300 C400,100 800,800 1250,350 C1400,200 1550,500 1600,550" 
+          fill="none" 
+          stroke="url(#cyanWaveLight)" 
+          strokeWidth="2" 
+        />
+        <defs>
+          <linearGradient id="magentaWaveLight" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#E01A8A" stopOpacity="0.3" />
+            <stop offset="100%" stopColor="#E01A8A" stopOpacity="0.0" />
+          </linearGradient>
+          <linearGradient id="cyanWaveLight" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#00F0FF" stopOpacity="0.0" />
+            <stop offset="50%" stopColor="#00F0FF" stopOpacity="0.35" />
+            <stop offset="100%" stopColor="#00F0FF" stopOpacity="0.0" />
+          </linearGradient>
+        </defs>
       </svg>
 
-      {/* SSO Card Surface */}
-      <div className="relative z-10 max-w-md w-full bg-[#161224] rounded-2xl border border-[#00F0FF] shadow-[0_0_30px_rgba(0,240,255,0.32)] overflow-hidden transition-all duration-300">
+      {/* Card Container: Pure White (#FFFFFF) with delicate Neon Cyan stroke & soft depth */}
+      <div className="relative z-10 max-w-md w-full bg-white rounded-2xl border border-[#00F0FF] shadow-[0_10px_25px_-5px_rgba(15,23,42,0.08),0_8px_10px_-6px_rgba(15,23,42,0.05),0_0_25px_rgba(0,240,255,0.2)] overflow-hidden transition-all duration-300">
         
-        {/* Card Header & Official 15-Year Branding */}
-        <div className="pt-8 pb-6 px-8 text-center">
-          <div className="flex items-center justify-center mb-6">
+        {/* Header & Official Branding */}
+        <div className="pt-8 pb-5 px-8 text-center">
+          
+          {/* Logo Bar */}
+          <div className="flex items-center justify-center gap-4 mb-4">
             <img 
-              src="/tiger-15th-logo.png" 
-              alt="Tiger Analytics 15 Years Powered by Ingenuity" 
-              className="h-10 md:h-12 w-auto max-w-full object-contain drop-shadow-[0_0_15px_rgba(224,26,138,0.45)]"
+              src="/tiger-logo.png" 
+              alt="Tiger Analytics" 
+              className="h-9 w-auto object-contain"
               onError={(e) => {
                 e.target.onerror = null;
-                e.target.src = "/tiger-logo.png";
+                e.target.src = "https://placehold.co/140x36/FFFFFF/0F172A?text=Tiger+Analytics";
               }}
             />
+
+            <div className="h-6 w-[1.5px] bg-slate-300" />
+
+            <div className="flex items-center gap-1 px-2.5 py-1 rounded-md border border-[#E01A8A]/30 bg-[#FCE7F3]/40">
+              <span className="text-xs font-black text-[#E01A8A] tracking-wider">15</span>
+              <span className="text-[9px] font-bold text-[#8F00FF] tracking-wider uppercase">INGENUITY</span>
+            </div>
           </div>
 
-          <h2 className="text-2xl font-bold tracking-tight text-white">
+          {/* Cyan to Magenta Gradient Accent Line under Logo */}
+          <div className="h-[2px] w-3/4 mx-auto bg-gradient-to-r from-[#00F0FF] via-[#8F00FF]/40 to-[#E01A8A] rounded-full mb-6 opacity-80" />
+
+          {/* Portal Title & Subtitle */}
+          <h2 className="text-2xl font-bold tracking-tight text-[#0F172A]">
             Demand Management Portal
           </h2>
-          <p className="text-[#CBD5E1] text-xs mt-1.5 font-medium tracking-wide">
+          <p className="text-[#475569] text-xs mt-1.5 font-medium tracking-wide">
             Single Sign-On Authentication
           </p>
         </div>
 
-        {/* Login Form */}
+        {/* SSO Form Controls */}
         <form onSubmit={handleSSO} className="px-8 pb-8 pt-2 space-y-6">
           {error && (
-            <div className="p-3.5 bg-rose-950/70 text-rose-200 text-xs rounded-xl border border-rose-500/60 font-semibold">
+            <div className="p-3.5 bg-rose-50 text-rose-700 text-xs rounded-xl border border-rose-200 font-semibold shadow-sm">
               ⚠ {error}
             </div>
           )}
 
           <div>
-            <label className="block text-xs font-bold text-[#CBD5E1] mb-2 tracking-wide">
+            <label className="block text-xs font-bold text-[#0F172A] mb-2 tracking-wide">
               Select Login Profile
             </label>
             <div className="relative">
               <select
                 value={roleSelection}
                 onChange={(e) => setRoleSelection(e.target.value)}
-                className="w-full p-3.5 bg-[#0D0B18] border border-slate-700 hover:border-[#00F0FF]/50 focus:border-[#00F0FF] text-white rounded-xl text-xs font-medium focus:ring-1 focus:ring-[#00F0FF] focus:outline-none transition cursor-pointer appearance-none pr-10 shadow-inner"
+                className="w-full p-3.5 bg-white border border-slate-300 hover:border-[#00F0FF] focus:border-[#00F0FF] text-[#0F172A] rounded-xl text-xs font-medium focus:ring-2 focus:ring-[#00F0FF]/20 focus:outline-none transition cursor-pointer appearance-none pr-10 shadow-sm"
               >
-                <option value="demand_creation" className="bg-[#161224] text-white">
+                <option value="demand_creation" className="bg-white text-[#0F172A]">
                   Demand Creation (Sample@tigeranalytics.com)
                 </option>
-                <option value="admin_partner" className="bg-[#161224] text-white">
+                <option value="admin_partner" className="bg-white text-[#0F172A]">
                   Admin / Partner (Admin001@tigeranalytics.com)
                 </option>
               </select>
-              <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3.5 text-slate-400">
-                ▼
+              
+              <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3.5 text-slate-500">
+                <svg className="w-4 h-4 fill-current" viewBox="0 0 20 20">
+                  <path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" />
+                </svg>
               </div>
             </div>
           </div>
 
+          {/* Primary Action Button */}
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-3.5 bg-gradient-to-r from-[#E01A8A] via-[#C91780] to-[#8F00FF] hover:opacity-95 text-white font-bold rounded-xl text-sm shadow-[0_0_22px_rgba(224,26,138,0.45)] hover:shadow-[0_0_30px_rgba(224,26,138,0.7)] transition-all duration-200 flex items-center justify-center cursor-pointer active:scale-[0.99]"
+            className="w-full py-3.5 bg-gradient-to-r from-[#E01A8A] via-[#C91780] to-[#8F00FF] hover:opacity-95 text-white font-bold rounded-xl text-sm shadow-[0_0_20px_rgba(224,26,138,0.4)] hover:shadow-[0_0_28px_rgba(224,26,138,0.6)] transition-all duration-200 flex items-center justify-center cursor-pointer active:scale-[0.99]"
           >
             {loading ? 'Authenticating...' : 'Sign in with SSO'}
           </button>
