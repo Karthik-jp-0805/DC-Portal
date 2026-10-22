@@ -87,7 +87,7 @@ function SearchableSelect({
                     key={opt} type="button"
                     onClick={() => { onChange(opt); setIsOpen(false); }}
                     className={`w-full text-left px-3.5 py-2.5 text-xs transition-colors flex items-center justify-between ${
-                      isSelected ? 'bg-[#00F0FF]/15 text-[#0F172A] font-bold border-l-4 border-[#00F0FF]' : 'text-[#1E293B] hover:bg-[#00F0FF]/10 hover:text-[#0F172A]'
+                      isSelected ? 'bg-[#00F0FF]/15 text-[#0F172A] font-bold border-l-4 border-[#00F0FF]' : 'text-slate-900 hover:bg-[#00F0FF]/10'
                     }`}
                   >
                     <span className="truncate">{opt}</span>
@@ -139,10 +139,10 @@ export default function DemandForm({ currentUser, onSubmitted }) {
     
     // Interactive Headcount Builder (Markup #11)
     headcountBreakdown: {
-      'A1': { active: true, count: 1 },
-      'A2': { active: false, count: 1 },
-      'L1': { active: false, count: 1 },
-      'L2': { active: false, count: 1 },
+      'A1': { active: false, count: 1 },
+      'A2': { active: true, count: 1 },
+      'L1': { active: true, count: 1 },
+      'L2': { active: true, count: 1 },
       'M1': { active: false, count: 1 },
       'M2': { active: false, count: 1 },
       'AD+': { active: false, count: 1 }
@@ -292,9 +292,18 @@ export default function DemandForm({ currentUser, onSubmitted }) {
   // Master Lists
   const masterProjectGroups = useMemo(() => (PROJECT_GROUPS || []).map(sanitizeProjectLabel), []);
   const masterProjectNames = useMemo(() => (PROJECT_NAMES || []).map(sanitizeProjectLabel), []);
-  const masterRolesList = useMemo(() => ROLES_LIST || [], []);
+  const masterRolesList = useMemo(() => ROLES_LIST || [
+    'Data Engineer', 'Lead Data Scientist', 'Senior Data Scientist', 'Data Scientist',
+    'UI/UX Engineer', 'Frontend Engineer (React)', 'Backend Engineer (Python/FastAPI)',
+    'Full Stack Engineer', 'Cloud Solutions Architect', 'DevOps / MLOps Engineer',
+    'Data Architect', 'Big Data Developer', 'Azure BDE Specialist', 'Snowflake Developer',
+    'Databricks Specialist', 'PowerBI Developer', 'Tableau Specialist', 'QA Automation Engineer',
+    'Business Analyst', 'Delivery Manager', 'Scrum Master', 'Product Owner', 'Other'
+  ], []);
+
   const masterStreamsList = useMemo(() => STREAMS || [
-    'Quality Engineering', 'IPE', 'AIML', 'Consulting', 'Data Engineering', 'Cloud & DevOps'
+    'Engineering - AWS BDE', 'Engineering - Azure BDE', 'Quality Engineering', 'IPE',
+    'AIML', 'Consulting', 'Data Engineering', 'Cloud & DevOps'
   ], []);
 
   const filteredRoles = useMemo(() => {
@@ -387,7 +396,6 @@ export default function DemandForm({ currentUser, onSubmitted }) {
     }
   };
 
-  // Synchronized Final Submission
   const handleSubmit = async () => {
     const isBothFlow = currentSection === 'pipeline_demand';
     if ((isBothFlow || currentSection === 2) && !isDemandValid()) { setTouchedFields(true); return; }
@@ -395,7 +403,6 @@ export default function DemandForm({ currentUser, onSubmitted }) {
 
     setSubmitting(true);
 
-    // Compute consolidated payload for single or matrix flows
     const finalPayload = {
       ...formData,
       numPositions: formData.multiplePositionsRequired === 'Yes'
@@ -432,7 +439,7 @@ export default function DemandForm({ currentUser, onSubmitted }) {
   const validationAlertMsg = getDemandValidationMessage();
 
   return (
-    <div className="max-w-5xl mx-auto my-6 font-sans">
+    <div className="max-w-5xl mx-auto my-6 font-sans text-slate-900">
       
       {/* Hidden CSV File Input */}
       <input
@@ -576,14 +583,14 @@ export default function DemandForm({ currentUser, onSubmitted }) {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
                     <label className="block text-xs font-semibold text-[#1E293B] mb-1.5">Delivery Partner <span className="text-[#E01A8A]">*</span></label>
-                    <select value={formData.deliveryPartner} onChange={(e) => handleChange('deliveryPartner', e.target.value)} className="w-full p-2.5 bg-white border border-[#1E293B]/30 rounded-xl text-xs focus:border-[#00F0FF] outline-none">
+                    <select value={formData.deliveryPartner} onChange={(e) => handleChange('deliveryPartner', e.target.value)} className="w-full p-2.5 bg-white border border-[#1E293B]/30 rounded-xl text-xs text-[#0F172A] focus:border-[#00F0FF] outline-none">
                       <option value="">Select...</option>
                       {(DELIVERY_PARTNERS || ['Karthikeyan Jayaprakash', 'Parag Shah', 'Rohit Sen']).map(dp => <option key={dp} value={dp}>{dp}</option>)}
                     </select>
                   </div>
                   <div>
                     <label className="block text-xs font-semibold text-[#1E293B] mb-1.5">Client Partner <span className="text-[#E01A8A]">*</span></label>
-                    <select value={formData.clientPartner} onChange={(e) => handleChange('clientPartner', e.target.value)} className="w-full p-2.5 bg-white border border-[#1E293B]/30 rounded-xl text-xs focus:border-[#00F0FF] outline-none">
+                    <select value={formData.clientPartner} onChange={(e) => handleChange('clientPartner', e.target.value)} className="w-full p-2.5 bg-white border border-[#1E293B]/30 rounded-xl text-xs text-[#0F172A] focus:border-[#00F0FF] outline-none">
                       <option value="">Select...</option>
                       {(CLIENT_PARTNERS || ['Parag Shah', 'Sandeep Sharma', 'Rohit Sen']).map(cp => <option key={cp} value={cp}>{cp}</option>)}
                     </select>
@@ -592,11 +599,11 @@ export default function DemandForm({ currentUser, onSubmitted }) {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
                     <label className="block text-xs font-semibold text-[#1E293B] mb-1.5">Tech Partner <span className="text-[#E01A8A]">*</span></label>
-                    <input type="text" value={formData.techPartner} onChange={(e) => handleChange('techPartner', e.target.value)} className="w-full bg-white border border-[#1E293B]/30 focus:border-[#00F0FF] rounded-xl px-3 py-2 text-xs outline-none" />
+                    <input type="text" value={formData.techPartner} onChange={(e) => handleChange('techPartner', e.target.value)} className="w-full bg-white border border-[#1E293B]/30 focus:border-[#00F0FF] rounded-xl px-3 py-2 text-xs text-[#0F172A] outline-none" />
                   </div>
                   <div>
                     <label className="block text-xs font-semibold text-[#1E293B] mb-1.5">Engineering Partner <span className="text-[#E01A8A]">*</span></label>
-                    <input type="text" value={formData.engineeringPartner} onChange={(e) => handleChange('engineeringPartner', e.target.value)} className="w-full bg-white border border-[#1E293B]/30 focus:border-[#00F0FF] rounded-xl px-3 py-2 text-xs outline-none" />
+                    <input type="text" value={formData.engineeringPartner} onChange={(e) => handleChange('engineeringPartner', e.target.value)} className="w-full bg-white border border-[#1E293B]/30 focus:border-[#00F0FF] rounded-xl px-3 py-2 text-xs text-[#0F172A] outline-none" />
                   </div>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -628,14 +635,14 @@ export default function DemandForm({ currentUser, onSubmitted }) {
                 <div>
                   <label className="block text-xs font-semibold text-[#1E293B] mb-2">SOW Applicability <span className="text-[#E01A8A]">*</span></label>
                   <div className="flex flex-wrap gap-4">{['New SOW', 'Existing SOW', 'Not Applicable'].map(sow => (
-                    <label key={sow} onClick={() => handleChange('sowApplicability', sow)} className={`flex items-center px-4 py-2 rounded-xl border text-xs cursor-pointer ${formData.sowApplicability === sow ? 'border-[#00F0FF] bg-[#00F0FF]/10 font-bold' : 'border-slate-200 bg-white'}`}>
+                    <label key={sow} onClick={() => handleChange('sowApplicability', sow)} className={`flex items-center px-4 py-2 rounded-xl border text-xs cursor-pointer ${formData.sowApplicability === sow ? 'border-[#00F0FF] bg-[#00F0FF]/10 font-bold text-[#0F172A]' : 'border-slate-200 bg-white text-[#1E293B]'}`}>
                       <span className={`w-3.5 h-3.5 rounded-full border mr-2 flex items-center justify-center ${formData.sowApplicability === sow ? 'border-[#00F0FF] bg-[#00F0FF]' : 'border-slate-300'}`} />{sow}
                     </label>
                   ))}</div>
                 </div>
                 
                 <div className="flex flex-col sm:flex-row justify-between items-center gap-4 pt-6 border-t border-slate-200 mt-8">
-                  <button type="button" onClick={handleBack} className="px-5 py-2.5 bg-slate-100 hover:bg-slate-200 text-xs font-bold rounded-full transition">← Back</button>
+                  <button type="button" onClick={handleBack} className="px-5 py-2.5 bg-slate-100 hover:bg-slate-200 text-xs font-bold rounded-full transition text-[#1E293B]">← Back</button>
                   {currentSection === 'pipeline_dossier' ? (
                     <button type="button" disabled={!isDossierValid()} onClick={handleContinueToDemand} className={`px-8 py-3 rounded-full text-xs font-bold transition-all ${
                       isDossierValid() ? 'bg-[#00F0FF] text-[#05050A] shadow-[0_0_15px_rgba(0,240,255,0.4)] hover:scale-105 cursor-pointer' : 'bg-slate-200 text-slate-400 opacity-60 cursor-not-allowed'
@@ -687,7 +694,7 @@ export default function DemandForm({ currentUser, onSubmitted }) {
                 </div>
               )}
 
-              {/* Multi-Step Tabs (Markup #10) */}
+              {/* Multi-Step Tabs */}
               <div className="bg-[#F8FAFC] border-b border-slate-200 px-6 pt-3 mt-4 flex flex-wrap gap-2 text-xs font-semibold">
                 {[
                   { id: 1, label: 'Project & Demand Context' },
@@ -747,14 +754,14 @@ export default function DemandForm({ currentUser, onSubmitted }) {
                   </div>
                 )}
 
-                {/* TAB 2: ROLES, SKILLS & MULTI-POSITION (MARKUPS #11, #12, #13) */}
+                {/* TAB 2: ROLES, SKILLS & MULTI-POSITION (FIXED CONTRAST & VISIBILITY) */}
                 {activeDemandTab === 2 && (
                   <div className="space-y-6">
                     <div className="flex items-center justify-between border-b border-slate-200 pb-2">
                       <h3 className="text-base font-bold text-[#0F172A]">Role, Skill & Position Requirements</h3>
                     </div>
 
-                    {/* Multiple Positions Toggle (Markup #13) */}
+                    {/* Multiple Positions Toggle */}
                     <div className="bg-[#F8FAFC] border border-slate-200 rounded-xl p-5 shadow-sm">
                       <label className="block text-sm font-bold text-[#0F172A] mb-3">Multiple Positions Required? <span className="text-[#E01A8A]">*</span></label>
                       <div className="flex gap-6 mb-4">
@@ -766,7 +773,6 @@ export default function DemandForm({ currentUser, onSubmitted }) {
                         ))}
                       </div>
 
-                      {/* Main Form Multi-Position Summary Box (Markup #13) */}
                       {formData.multiplePositionsRequired === 'Yes' && (
                         <div className="pt-4 border-t border-slate-200 space-y-3">
                           <div className="flex flex-col md:flex-row items-center justify-between gap-4">
@@ -796,7 +802,7 @@ export default function DemandForm({ currentUser, onSubmitted }) {
                       )}
                     </div>
 
-                    {/* Standard Single-Position Flow (Markup #6 + #11) */}
+                    {/* Standard Single-Position Flow */}
                     {formData.multiplePositionsRequired === 'No' && (
                       <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-300">
                         <div>
@@ -805,11 +811,13 @@ export default function DemandForm({ currentUser, onSubmitted }) {
                             formData.selectedRoles.length === 0 && touchedFields ? 'border-[#E01A8A] ring-1 ring-[#E01A8A]' : 'border-slate-200'
                           }`}>
                             {formData.selectedRoles.length === 0 ? <span className="text-xs text-slate-400 italic">Type below to search roles...</span> : formData.selectedRoles.map(role => (
-                              <span key={role} className="inline-flex items-center gap-1.5 px-3 py-1 bg-[#00F0FF]/20 border border-[#00F0FF] text-[#0F172A] rounded-lg text-xs font-semibold">
+                              <span key={role} className="inline-flex items-center gap-1.5 px-3 py-1 bg-[#00F0FF]/20 border border-[#00F0FF] text-slate-900 rounded-lg text-xs font-semibold">
                                 {role} <button type="button" onClick={() => handleToggleRole(role)} className="text-slate-600 hover:text-[#E01A8A]">✕</button>
                               </span>
                             ))}
                           </div>
+                          
+                          {/* Search Input Box */}
                           <div className="relative">
                             <input
                               type="text"
@@ -817,22 +825,36 @@ export default function DemandForm({ currentUser, onSubmitted }) {
                               value={roleSearchTerm}
                               onFocus={() => setIsRoleDropdownOpen(true)}
                               onChange={(e) => { setRoleSearchTerm(e.target.value); setIsRoleDropdownOpen(true); }}
-                              className="w-full bg-white border border-[#1E293B]/30 rounded-xl p-3 text-[#0F172A] focus:border-[#00F0FF] outline-none text-xs"
+                              className="w-full bg-white border border-[#1E293B]/30 rounded-xl p-3 text-slate-900 focus:border-[#00F0FF] outline-none text-xs"
                             />
+
+                            {/* Dropdown Menu (Names styled with text-slate-900) */}
                             {isRoleDropdownOpen && (
-                              <div className="absolute z-20 w-full mt-2 bg-white border border-slate-200 rounded-xl shadow-xl max-h-56 overflow-y-auto p-2">
-                                <div className="flex justify-between items-center px-2 py-1 text-[11px] text-slate-500 border-b border-slate-100">
-                                  <span>Showing {filteredRoles.length} matching roles</span>
-                                  <button type="button" onClick={() => setIsRoleDropdownOpen(false)} className="text-[#00F0FF] font-bold">Close</button>
+                              <div className="absolute z-20 w-full mt-2 bg-white border border-slate-300 rounded-xl shadow-2xl max-h-60 overflow-y-auto p-2.5">
+                                <div className="flex justify-between items-center px-2 py-1.5 text-xs text-slate-600 border-b border-slate-200">
+                                  <span className="font-semibold">Showing {filteredRoles.length} matching roles</span>
+                                  <button type="button" onClick={() => setIsRoleDropdownOpen(false)} className="text-[#00F0FF] font-bold text-xs hover:underline">Close ✕</button>
                                 </div>
-                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-1 pt-2">
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5 pt-2">
                                   {filteredRoles.map(role => {
                                     const isChecked = formData.selectedRoles.includes(role);
                                     return (
-                                      <label key={role} onClick={() => handleToggleRole(role)} className={`flex items-center gap-2 p-2 rounded-lg text-xs cursor-pointer ${
-                                        isChecked ? 'bg-[#00F0FF]/15 text-[#0F172A] font-semibold' : 'hover:bg-slate-50'
-                                      }`}>
-                                        <input type="checkbox" checked={isChecked} onChange={() => {}} className="accent-[#00F0FF]" /> <span className="truncate">{role}</span>
+                                      <label
+                                        key={role}
+                                        onClick={() => handleToggleRole(role)}
+                                        className={`flex items-center gap-2.5 p-2 rounded-lg text-xs cursor-pointer transition-colors ${
+                                          isChecked
+                                            ? 'bg-[#00F0FF]/15 text-slate-950 font-bold border border-[#00F0FF]/50'
+                                            : 'text-slate-800 hover:bg-slate-100 hover:text-slate-950'
+                                        }`}
+                                      >
+                                        <input
+                                          type="checkbox"
+                                          checked={isChecked}
+                                          onChange={() => {}}
+                                          className="accent-[#00F0FF] w-4 h-4 rounded cursor-pointer"
+                                        />
+                                        <span className="truncate text-slate-900 font-medium">{role}</span>
                                       </label>
                                     );
                                   })}
@@ -844,13 +866,17 @@ export default function DemandForm({ currentUser, onSubmitted }) {
 
                         <div>
                           <label className="block text-xs font-semibold text-[#1E293B] mb-1.5">Stream</label>
-                          <select value={formData.stream} onChange={(e) => handleChange('stream', e.target.value)} className="w-full bg-white border border-[#1E293B]/30 rounded-xl p-2.5 text-[#0F172A] focus:border-[#00F0FF] outline-none text-xs">
-                            <option value="">Select Stream</option>
-                            {masterStreamsList.map(s => <option key={s} value={s}>{s}</option>)}
+                          <select
+                            value={formData.stream}
+                            onChange={(e) => handleChange('stream', e.target.value)}
+                            className="w-full bg-white border border-[#1E293B]/30 rounded-xl p-2.5 text-slate-900 focus:border-[#00F0FF] outline-none text-xs cursor-pointer"
+                          >
+                            <option value="" className="text-slate-900 bg-white">Select Stream</option>
+                            {masterStreamsList.map(s => <option key={s} value={s} className="text-slate-900 bg-white">{s}</option>)}
                           </select>
                         </div>
 
-                        {/* Interactive Headcount Builder (Markup #11) */}
+                        {/* Interactive Headcount Builder (Markup #11 - Fixed Input Contrast) */}
                         <div className="bg-white border border-[#1E293B]/20 rounded-xl p-5 shadow-sm">
                           <label className="block text-sm font-bold text-[#0F172A] mb-1">Level / Role Breakdown <span className="text-[#E01A8A] font-bold">*</span></label>
                           <p className="text-[11px] text-slate-500 mb-4">Select applicable levels and specify exact headcount target.</p>
@@ -860,13 +886,13 @@ export default function DemandForm({ currentUser, onSubmitted }) {
                               const { active, count } = formData.headcountBreakdown[level];
                               return (
                                 <div key={level} className={`flex items-center gap-2 p-1.5 rounded-lg border transition-all ${
-                                  active ? 'border-[#00F0FF] bg-[#00F0FF]/5' : 'border-slate-200 bg-slate-50'
+                                  active ? 'border-[#00F0FF] bg-[#00F0FF]/10 shadow-sm' : 'border-slate-200 bg-slate-50'
                                 }`}>
                                   <button
                                     type="button"
                                     onClick={() => handleToggleLevel(level)}
                                     className={`flex-1 py-1.5 text-xs font-bold rounded-md flex items-center justify-center gap-1 transition ${
-                                      active ? 'bg-[#00F0FF] text-[#05050A]' : 'text-slate-400 hover:bg-slate-200'
+                                      active ? 'bg-[#00F0FF] text-slate-950 shadow-sm' : 'text-slate-700 bg-white hover:bg-slate-200'
                                     }`}
                                   >
                                     {active && <span>✓</span>} {level}
@@ -877,7 +903,7 @@ export default function DemandForm({ currentUser, onSubmitted }) {
                                       min="1"
                                       value={count}
                                       onChange={(e) => handleUpdateLevelCount(level, e.target.value)}
-                                      className="w-14 text-center text-xs font-mono font-bold bg-white border border-slate-300 rounded-md py-1.5 outline-none focus:border-[#00F0FF]"
+                                      className="w-14 text-center text-xs font-mono font-black text-slate-950 bg-white border-2 border-[#00F0FF] rounded-md py-1.5 outline-none focus:ring-2 focus:ring-[#00F0FF]/40 shadow-sm"
                                     />
                                   )}
                                 </div>
@@ -889,7 +915,7 @@ export default function DemandForm({ currentUser, onSubmitted }) {
                             <div className="text-xs font-semibold text-[#1E293B]">
                               Total Headcount (# of Positions): <span className="text-lg font-black text-[#00F0FF] ml-1">{totalSingleHeadcount}</span>
                             </div>
-                            <div className="text-[11px] text-slate-500 bg-slate-100 px-3 py-1 rounded-md">
+                            <div className="text-[11px] text-slate-700 bg-slate-100 px-3 py-1 rounded-md">
                               Summary: <span className="font-bold text-[#0F172A]">{activeLevelSummary || 'None selected'}</span>
                             </div>
                           </div>
@@ -898,13 +924,13 @@ export default function DemandForm({ currentUser, onSubmitted }) {
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                           <div>
                             <label className="block text-xs font-semibold text-[#1E293B] mb-1">Primary Skills (Must-have) <span className="text-[#E01A8A] font-bold">*</span></label>
-                            <textarea rows={2} value={formData.primarySkills} onChange={(e) => handleChange('primarySkills', e.target.value)} placeholder="Type primary skills..." className={`w-full bg-white border rounded-xl p-2.5 text-[#0F172A] focus:border-[#00F0FF] outline-none text-xs ${
+                            <textarea rows={2} value={formData.primarySkills} onChange={(e) => handleChange('primarySkills', e.target.value)} placeholder="Type primary skills..." className={`w-full bg-white border rounded-xl p-2.5 text-slate-900 focus:border-[#00F0FF] outline-none text-xs ${
                               !formData.primarySkills.trim() && touchedFields ? 'border-[#E01A8A] ring-1 ring-[#E01A8A]' : 'border-[#1E293B]/30'
                             }`} />
                           </div>
                           <div>
                             <label className="block text-xs font-semibold text-[#1E293B] mb-1">Secondary Skills (Good-to-have)</label>
-                            <textarea rows={2} value={formData.secondarySkills} onChange={(e) => handleChange('secondarySkills', e.target.value)} placeholder="Type secondary skills..." className="w-full bg-white border border-[#1E293B]/30 rounded-xl p-2.5 text-[#0F172A] focus:border-[#00F0FF] outline-none text-xs" />
+                            <textarea rows={2} value={formData.secondarySkills} onChange={(e) => handleChange('secondarySkills', e.target.value)} placeholder="Type secondary skills..." className="w-full bg-white border border-[#1E293B]/30 rounded-xl p-2.5 text-slate-900 focus:border-[#00F0FF] outline-none text-xs" />
                           </div>
                         </div>
                       </div>
@@ -1069,12 +1095,10 @@ export default function DemandForm({ currentUser, onSubmitted }) {
         </div>
       </div>
 
-      {/* ========================================================================= */}
-      {/* MULTI-POSITION DEMAND MATRIX MODAL (MARKUPS #12 & #13) */}
-      {/* ========================================================================= */}
+      {/* MULTI-POSITION DEMAND MATRIX MODAL */}
       {isMatrixOpen && (
         <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in duration-200">
-          <div className="bg-white max-w-[1240px] w-full rounded-2xl shadow-2xl flex flex-col max-h-[92vh] overflow-hidden">
+          <div className="bg-white max-w-[1240px] w-full rounded-2xl shadow-2xl flex flex-col max-h-[92vh] overflow-hidden text-slate-900">
             
             {/* Modal Header Ribbon */}
             <div className="bg-gradient-to-r from-[#E01A8A] to-[#9000FF] px-6 py-4 flex justify-between items-center">
@@ -1087,7 +1111,7 @@ export default function DemandForm({ currentUser, onSubmitted }) {
               <button onClick={() => setIsMatrixOpen(false)} className="text-white hover:text-[#00F0FF] font-bold text-xl leading-none">✕</button>
             </div>
 
-            {/* Consolidated Batch Metadata Banner (Markup #12) */}
+            {/* Consolidated Batch Metadata Banner */}
             <div className="px-6 py-3 bg-[#F8FAFC] border-b border-slate-200 flex flex-wrap items-center justify-between gap-3 text-xs">
               <div className="flex flex-wrap items-center gap-2 text-slate-700">
                 <span><strong>SBU / Domain:</strong> {formData.domain || 'Technology'}</span>
@@ -1117,7 +1141,7 @@ export default function DemandForm({ currentUser, onSubmitted }) {
               </div>
             </div>
 
-            {/* Matrix Data Grid with Target Sub-ID Mapping Preview (Markup #12 & #13) */}
+            {/* Matrix Data Grid */}
             <div className="overflow-x-auto overflow-y-auto flex-1 p-6 bg-white min-h-[300px]">
               <table className="w-full text-left text-xs whitespace-nowrap border-collapse">
                 <thead className="bg-[#1E293B] text-white sticky top-0 z-10">
@@ -1135,7 +1159,7 @@ export default function DemandForm({ currentUser, onSubmitted }) {
                     <th className="py-2.5 px-3 rounded-tr-lg font-semibold text-center">Action</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100">
+                <tbody className="divide-y divide-slate-100 text-slate-900">
                   {formData.matrixPositions.length === 0 ? (
                     <tr>
                       <td colSpan={11} className="py-12 text-center text-slate-400 italic">
@@ -1155,44 +1179,44 @@ export default function DemandForm({ currentUser, onSubmitted }) {
                             <select
                               value={row.stream}
                               onChange={(e) => handleUpdateMatrixRow(row.id, 'stream', e.target.value)}
-                              className={`w-36 p-1.5 border rounded outline-none bg-white ${
+                              className={`w-36 p-1.5 border rounded outline-none bg-white text-slate-900 ${
                                 !row.stream && touchedFields ? 'border-[#E01A8A]' : 'border-slate-200 focus:border-[#00F0FF]'
                               }`}
                             >
-                              <option value="">Select Stream...</option>
-                              {masterStreamsList.map(s => <option key={s} value={s}>{s}</option>)}
+                              <option value="" className="text-slate-900 bg-white">Select Stream...</option>
+                              {masterStreamsList.map(s => <option key={s} value={s} className="text-slate-900 bg-white">{s}</option>)}
                             </select>
                           </td>
                           <td className="py-2 px-2">
                             <input
                               type="text" placeholder="Sub Stream" value={row.subStream}
                               onChange={(e) => handleUpdateMatrixRow(row.id, 'subStream', e.target.value)}
-                              className="w-32 p-1.5 border border-slate-200 rounded outline-none bg-white focus:border-[#00F0FF]"
+                              className="w-32 p-1.5 border border-slate-200 rounded outline-none bg-white text-slate-900 focus:border-[#00F0FF]"
                             />
                           </td>
                           <td className="py-2 px-2">
                             <input
                               type="text" placeholder="Track" value={row.track}
                               onChange={(e) => handleUpdateMatrixRow(row.id, 'track', e.target.value)}
-                              className="w-32 p-1.5 border border-slate-200 rounded outline-none bg-white focus:border-[#00F0FF]"
+                              className="w-32 p-1.5 border border-slate-200 rounded outline-none bg-white text-slate-900 focus:border-[#00F0FF]"
                             />
                           </td>
                           <td className="py-2 px-2">
                             <select
                               value={row.level}
                               onChange={(e) => handleUpdateMatrixRow(row.id, 'level', e.target.value)}
-                              className={`w-16 p-1.5 border rounded outline-none bg-white font-bold ${
+                              className={`w-16 p-1.5 border rounded outline-none bg-white text-slate-900 font-bold ${
                                 !row.level && touchedFields ? 'border-[#E01A8A]' : 'border-slate-200 focus:border-[#00F0FF]'
                               }`}
                             >
-                              {['A1', 'A2', 'L1', 'L2', 'M1', 'M2', 'AD+'].map(l => <option key={l} value={l}>{l}</option>)}
+                              {['A1', 'A2', 'L1', 'L2', 'M1', 'M2', 'AD+'].map(l => <option key={l} value={l} className="text-slate-900 bg-white">{l}</option>)}
                             </select>
                           </td>
                           <td className="py-2 px-2">
                             <input
                               type="number" min="1" value={row.noPos}
                               onChange={(e) => handleUpdateMatrixRow(row.id, 'noPos', e.target.value)}
-                              className={`w-16 p-1.5 border rounded outline-none bg-white text-center font-mono font-bold ${
+                              className={`w-16 p-1.5 border rounded outline-none bg-white text-center font-mono font-bold text-slate-900 ${
                                 row.noPos <= 0 && touchedFields ? 'border-[#E01A8A]' : 'border-slate-200 focus:border-[#00F0FF]'
                               }`}
                             />
@@ -1201,7 +1225,7 @@ export default function DemandForm({ currentUser, onSubmitted }) {
                             <input
                               type="text" placeholder="React, Python..." value={row.primarySkills}
                               onChange={(e) => handleUpdateMatrixRow(row.id, 'primarySkills', e.target.value)}
-                              className={`w-40 p-1.5 border rounded outline-none bg-white ${
+                              className={`w-40 p-1.5 border rounded outline-none bg-white text-slate-900 ${
                                 !row.primarySkills.trim() && touchedFields ? 'border-[#E01A8A]' : 'border-slate-200 focus:border-[#00F0FF]'
                               }`}
                             />
@@ -1210,28 +1234,28 @@ export default function DemandForm({ currentUser, onSubmitted }) {
                             <input
                               type="text" placeholder="Secondary skills..." value={row.secondarySkills}
                               onChange={(e) => handleUpdateMatrixRow(row.id, 'secondarySkills', e.target.value)}
-                              className="w-32 p-1.5 border border-slate-200 rounded outline-none bg-white focus:border-[#00F0FF]"
+                              className="w-32 p-1.5 border border-slate-200 rounded outline-none bg-white text-slate-900 focus:border-[#00F0FF]"
                             />
                           </td>
                           <td className="py-2 px-2">
                             <select
                               value={row.sow}
                               onChange={(e) => handleUpdateMatrixRow(row.id, 'sow', e.target.value)}
-                              className="w-16 p-1.5 border border-slate-200 rounded outline-none bg-white focus:border-[#00F0FF]"
+                              className="w-16 p-1.5 border border-slate-200 rounded outline-none bg-white text-slate-900 focus:border-[#00F0FF]"
                             >
-                              <option value="Yes">Yes</option>
-                              <option value="No">No</option>
+                              <option value="Yes" className="text-slate-900 bg-white">Yes</option>
+                              <option value="No" className="text-slate-900 bg-white">No</option>
                             </select>
                           </td>
                           <td className="py-2 px-2">
                             <select
                               value={row.forecast}
                               onChange={(e) => handleUpdateMatrixRow(row.id, 'forecast', e.target.value)}
-                              className="w-32 p-1.5 border border-slate-200 rounded outline-none bg-white focus:border-[#00F0FF]"
+                              className="w-32 p-1.5 border border-slate-200 rounded outline-none bg-white text-slate-900 focus:border-[#00F0FF]"
                             >
-                              <option value="Not Forecasted">Not Forecasted</option>
-                              <option value="Forecasted">Forecasted</option>
-                              <option value="Pipeline Reserved">Pipeline Reserved</option>
+                              <option value="Not Forecasted" className="text-slate-900 bg-white">Not Forecasted</option>
+                              <option value="Forecasted" className="text-slate-900 bg-white">Forecasted</option>
+                              <option value="Pipeline Reserved" className="text-slate-900 bg-white">Pipeline Reserved</option>
                             </select>
                           </td>
                           <td className="py-2 px-3 text-center">
@@ -1252,7 +1276,7 @@ export default function DemandForm({ currentUser, onSubmitted }) {
               </table>
             </div>
 
-            {/* Modal Footer with Batch Split Notification (Markup #12) */}
+            {/* Modal Footer with Batch Split Notification */}
             <div className="px-6 py-4 bg-[#F8FAFC] border-t border-slate-200 flex flex-col sm:flex-row justify-between items-center gap-3">
               <div className="text-xs text-slate-600">
                 Submitting <strong>{totalMatrixHeadcount} Positions</strong> across {formData.matrixPositions.length} role combinations (Batch Parent ID will split into <code className="bg-slate-200 text-[#0F172A] px-1.5 py-0.5 rounded font-mono">REQ-XXXX_01 to _{String(formData.matrixPositions.length).padStart(2, '0')}</code> on submit)
