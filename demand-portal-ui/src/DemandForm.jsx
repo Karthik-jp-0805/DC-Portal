@@ -5,9 +5,15 @@ import {
   REPLACEMENT_REASONS, NEW_PROJECT_GROUPS, DELIVERY_PARTNERS, CLIENT_PARTNERS
 } from './constants';
 
+// Sanitization utilities
 const sanitizeProjectLabel = (str) => {
   if (!str) return '';
   return str.replace(/^\d+[\.\-\s]+/, '').trim();
+};
+
+const formatRoleName = (str) => {
+  if (!str) return '';
+  return str.replace(/_/g, ' ').trim();
 };
 
 function SearchableSelect({
@@ -132,35 +138,24 @@ export default function DemandForm({ currentUser, onSubmitted }) {
     clientRequestorName: currentUser?.name || 'Karthikeyan Jayaprakash',
     demandType: 'New',
 
-    // Multi-Position & Single Role Config (Markups #11, #12, #13)
+    // Multi-Position & Single Role Config
     multiplePositionsRequired: 'No',
     selectedRoles: [], customRole: '', stream: '',
     primarySkills: '', secondarySkills: '', jobDescriptionName: '',
     
-    // Interactive Headcount Builder (Markup #11)
+    // Fix #2: All breakdown counters start inactive with count 0
     headcountBreakdown: {
-      'A1': { active: false, count: 1 },
-      'A2': { active: true, count: 1 },
-      'L1': { active: true, count: 1 },
-      'L2': { active: true, count: 1 },
-      'M1': { active: false, count: 1 },
-      'M2': { active: false, count: 1 },
-      'AD+': { active: false, count: 1 }
+      'A1': { active: false, count: 0 },
+      'A2': { active: false, count: 0 },
+      'L1': { active: false, count: 0 },
+      'L2': { active: false, count: 0 },
+      'M1': { active: false, count: 0 },
+      'M2': { active: false, count: 0 },
+      'AD+': { active: false, count: 0 }
     },
     
-    // Multi-Position Matrix Rows (Markup #12 & #13)
-    matrixPositions: [
-      {
-        id: '1', stream: 'Quality Engineering', subStream: 'QE', track: '--',
-        level: 'L1', noPos: 1, primarySkills: 'API Testing, Pytesting',
-        secondarySkills: 'Performance Testing', sow: 'Yes', forecast: 'Not Forecasted'
-      },
-      {
-        id: '2', stream: 'IPE', subStream: 'Application Eng', track: 'Fullstack',
-        level: 'A2', noPos: 1, primarySkills: 'Full Stack (React & Java)',
-        secondarySkills: 'GraphQL, Microservices', sow: 'No', forecast: 'Not Forecasted'
-      }
-    ],
+    // Fix #3: Multi-Position Matrix initialized completely empty
+    matrixPositions: [],
 
     // Timelines & Commercials
     customerRequestedDate: '', customerExpectedFulfillmentDate: '',
@@ -176,7 +171,7 @@ export default function DemandForm({ currentUser, onSubmitted }) {
 
   const handleChange = (field, val) => setFormData(prev => ({ ...prev, [field]: val }));
 
-  // Matrix Row Modifiers (Markup #12 & #13)
+  // Matrix Row Modifiers (Sub Stream and Track removed per Fix #3)
   const handleAddMatrixRow = () => {
     setFormData(prev => ({
       ...prev,
@@ -184,7 +179,7 @@ export default function DemandForm({ currentUser, onSubmitted }) {
         ...prev.matrixPositions,
         {
           id: Date.now().toString(),
-          stream: '', subStream: '', track: '', level: 'L1', noPos: 1,
+          stream: '', level: 'L1', noPos: 1,
           primarySkills: '', secondarySkills: '', sow: 'Yes', forecast: 'Not Forecasted'
         }
       ]
@@ -207,7 +202,7 @@ export default function DemandForm({ currentUser, onSubmitted }) {
     }));
   };
 
-  // CSV Importer for Multi-Position Matrix (Markup #12)
+  // CSV Importer for Multi-Position Matrix (Without Sub Stream and Track)
   const handleFileUpload = (e) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -223,14 +218,12 @@ export default function DemandForm({ currentUser, onSubmitted }) {
         return {
           id: `${Date.now()}_${idx}`,
           stream: parts[0] || 'Quality Engineering',
-          subStream: parts[1] || '',
-          track: parts[2] || '',
-          level: parts[3] || 'L1',
-          noPos: parseInt(parts[4]) || 1,
-          primarySkills: parts[5] || 'React, Python',
-          secondarySkills: parts[6] || '',
-          sow: parts[7] || 'Yes',
-          forecast: parts[8] || 'Not Forecasted'
+          level: parts[1] || 'L1',
+          noPos: parseInt(parts[2]) || 1,
+          primarySkills: parts[3] || 'React, Python',
+          secondarySkills: parts[4] || '',
+          sow: parts[5] || 'Yes',
+          forecast: parts[6] || 'Not Forecasted'
         };
       });
 
@@ -243,15 +236,22 @@ export default function DemandForm({ currentUser, onSubmitted }) {
     e.target.value = '';
   };
 
-  // Headcount Level Handlers (Markup #11)
+  // Fix #2: Headcount activation toggle
   const handleToggleLevel = (level) => {
-    setFormData(prev => ({
-      ...prev,
-      headcountBreakdown: {
-        ...prev.headcountBreakdown,
-        [level]: { ...prev.headcountBreakdown[level], active: !prev.headcountBreakdown[level].active }
-      }
-    }));
+    setFormData(prev => {
+      const current = prev.headcountBreakdown[level];
+      const nextActive = !current.active;
+      return {
+        ...prev,
+        headcountBreakdown: {
+          ...prev.headcountBreakdown,
+          [level]: {
+            active: nextActive,
+            count: nextActive ? (current.count > 0 ? current.count : 1) : 0
+          }
+        }
+      };
+    });
   };
 
   const handleUpdateLevelCount = (level, count) => {
@@ -289,17 +289,21 @@ export default function DemandForm({ currentUser, onSubmitted }) {
       .join(', ') + (formData.matrixPositions.length > 3 ? '...' : '');
   }, [formData.matrixPositions]);
 
-  // Master Lists
+  // Master Lists (Fix #2: Underscore removal in roles)
   const masterProjectGroups = useMemo(() => (PROJECT_GROUPS || []).map(sanitizeProjectLabel), []);
   const masterProjectNames = useMemo(() => (PROJECT_NAMES || []).map(sanitizeProjectLabel), []);
-  const masterRolesList = useMemo(() => ROLES_LIST || [
-    'Data Engineer', 'Lead Data Scientist', 'Senior Data Scientist', 'Data Scientist',
-    'UI/UX Engineer', 'Frontend Engineer (React)', 'Backend Engineer (Python/FastAPI)',
-    'Full Stack Engineer', 'Cloud Solutions Architect', 'DevOps / MLOps Engineer',
-    'Data Architect', 'Big Data Developer', 'Azure BDE Specialist', 'Snowflake Developer',
-    'Databricks Specialist', 'PowerBI Developer', 'Tableau Specialist', 'QA Automation Engineer',
-    'Business Analyst', 'Delivery Manager', 'Scrum Master', 'Product Owner', 'Other'
-  ], []);
+  
+  const masterRolesList = useMemo(() => {
+    const raw = (ROLES_LIST && ROLES_LIST.length > 0) ? ROLES_LIST : [
+      'Data Engineer', 'Lead Data Scientist', 'Senior Data Scientist', 'Data Scientist',
+      'UI/UX Engineer', 'Frontend Engineer (React)', 'Backend Engineer (Python/FastAPI)',
+      'Full Stack Engineer', 'Cloud Solutions Architect', 'DevOps / MLOps Engineer',
+      'Data Architect', 'Big Data Developer', 'Azure BDE Specialist', 'Snowflake Developer',
+      'Databricks Specialist', 'PowerBI Developer', 'Tableau Specialist', 'QA Automation Engineer',
+      'Business Analyst', 'Delivery Manager', 'Scrum Master', 'Product Owner', 'Other'
+    ];
+    return Array.from(new Set(raw.map(formatRoleName)));
+  }, []);
 
   const masterStreamsList = useMemo(() => STREAMS || [
     'Engineering - AWS BDE', 'Engineering - Azure BDE', 'Quality Engineering', 'IPE',
@@ -311,15 +315,28 @@ export default function DemandForm({ currentUser, onSubmitted }) {
   }, [masterRolesList, roleSearchTerm]);
 
   const handleToggleRole = (role) => {
+    const clean = formatRoleName(role);
     setFormData(prev => {
-      const updated = prev.selectedRoles.includes(role)
-        ? prev.selectedRoles.filter(r => r !== role)
-        : [...prev.selectedRoles, role];
+      const updated = prev.selectedRoles.includes(clean)
+        ? prev.selectedRoles.filter(r => r !== clean)
+        : [...prev.selectedRoles, clean];
       return { ...prev, selectedRoles: updated };
     });
   };
 
-  // Validation
+  // Fix #1: Tab 1 validation rule
+  const isTab1Valid = useMemo(() => {
+    if (currentSection === 'pipeline_demand') {
+      return Boolean(formData.clientRequestorName.trim() && formData.demandType);
+    }
+    return Boolean(
+      formData.projectGroup &&
+      formData.projectName &&
+      formData.clientRequestorName.trim() &&
+      formData.demandType
+    );
+  }, [formData.projectGroup, formData.projectName, formData.clientRequestorName, formData.demandType, currentSection]);
+
   const isSection1Valid = () => Boolean(formData.domain && formData.serviceRequired && (formData.domain !== 'Other' || formData.otherDomain.trim()));
   const isDossierValid = () => Boolean(formData.newProjectGroup && formData.newProjectName.trim() && formData.customer && formData.currency && formData.deliveryPartner && formData.clientPartner && formData.techPartner.trim() && formData.engineeringPartner.trim() && formData.programType && formData.billingType && formData.projectTenure && formData.sowApplicability);
 
@@ -396,6 +413,16 @@ export default function DemandForm({ currentUser, onSubmitted }) {
     }
   };
 
+  // Fix #4: Step back sequentially through tabs before leaving demand creation
+  const handleDemandBack = () => {
+    if (activeDemandTab > 1) {
+      setActiveDemandTab(prev => prev - 1);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    } else {
+      handleBack();
+    }
+  };
+
   const handleSubmit = async () => {
     const isBothFlow = currentSection === 'pipeline_demand';
     if ((isBothFlow || currentSection === 2) && !isDemandValid()) { setTouchedFields(true); return; }
@@ -450,7 +477,7 @@ export default function DemandForm({ currentUser, onSubmitted }) {
         className="hidden"
       />
 
-      {/* Workflow Stepper */}
+      {/* Stepper Header for Both Service */}
       {isBothWorkflow && (
         <div className="mb-6 bg-white border border-slate-200 rounded-2xl p-4 shadow-soft-depth">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4">
@@ -590,7 +617,7 @@ export default function DemandForm({ currentUser, onSubmitted }) {
                   </div>
                   <div>
                     <label className="block text-xs font-semibold text-[#1E293B] mb-1.5">Client Partner <span className="text-[#E01A8A]">*</span></label>
-                    <select value={formData.clientPartner} onChange={(e) => handleChange('clientPartner', e.target.value)} className="w-full p-2.5 bg-white border border-[#1E293B]/30 rounded-xl text-xs text-[#0F172A] focus:border-[#00F0FF] outline-none">
+                    <select value={formData.clientPartner} onChange={(e) => handleChange('clientPartner', e.target.value)} className="w-full p-2.5 bg-white border border-[#1E293B]/30 rounded-xl text-xs focus:border-[#00F0FF] outline-none">
                       <option value="">Select...</option>
                       {(CLIENT_PARTNERS || ['Parag Shah', 'Sandeep Sharma', 'Rohit Sen']).map(cp => <option key={cp} value={cp}>{cp}</option>)}
                     </select>
@@ -746,15 +773,25 @@ export default function DemandForm({ currentUser, onSubmitted }) {
                       </div>
                     </div>
 
+                    {/* Fix #1: Disable Next Button until Tab 1 required fields are filled */}
                     <div className="flex justify-end pt-4">
-                      <button type="button" onClick={() => setActiveDemandTab(2)} className="px-6 py-2.5 bg-[#00F0FF]/15 border border-[#00F0FF] text-[#0F172A] text-xs font-bold rounded-full hover:bg-[#00F0FF] transition shadow-sm">
+                      <button
+                        type="button"
+                        disabled={!isTab1Valid}
+                        onClick={() => isTab1Valid && setActiveDemandTab(2)}
+                        className={`px-6 py-2.5 text-xs font-bold rounded-full transition shadow-sm ${
+                          isTab1Valid
+                            ? 'bg-[#00F0FF]/15 border border-[#00F0FF] text-[#0F172A] hover:bg-[#00F0FF] cursor-pointer'
+                            : 'bg-slate-200 text-slate-400 border border-slate-300 opacity-60 cursor-not-allowed'
+                        }`}
+                      >
                         Continue to Role & Skills →
                       </button>
                     </div>
                   </div>
                 )}
 
-                {/* TAB 2: ROLES, SKILLS & MULTI-POSITION (FIXED CONTRAST & VISIBILITY) */}
+                {/* TAB 2: ROLES, SKILLS & MULTI-POSITION */}
                 {activeDemandTab === 2 && (
                   <div className="space-y-6">
                     <div className="flex items-center justify-between border-b border-slate-200 pb-2">
@@ -828,7 +865,7 @@ export default function DemandForm({ currentUser, onSubmitted }) {
                               className="w-full bg-white border border-[#1E293B]/30 rounded-xl p-3 text-slate-900 focus:border-[#00F0FF] outline-none text-xs"
                             />
 
-                            {/* Dropdown Menu (Names styled with text-slate-900) */}
+                            {/* Fix #2: Clean Role Names without underscores */}
                             {isRoleDropdownOpen && (
                               <div className="absolute z-20 w-full mt-2 bg-white border border-slate-300 rounded-xl shadow-2xl max-h-60 overflow-y-auto p-2.5">
                                 <div className="flex justify-between items-center px-2 py-1.5 text-xs text-slate-600 border-b border-slate-200">
@@ -876,7 +913,7 @@ export default function DemandForm({ currentUser, onSubmitted }) {
                           </select>
                         </div>
 
-                        {/* Interactive Headcount Builder (Markup #11 - Fixed Input Contrast) */}
+                        {/* Fix #2: All breakdown counters start inactive with count 0 */}
                         <div className="bg-white border border-[#1E293B]/20 rounded-xl p-5 shadow-sm">
                           <label className="block text-sm font-bold text-[#0F172A] mb-1">Level / Role Breakdown <span className="text-[#E01A8A] font-bold">*</span></label>
                           <p className="text-[11px] text-slate-500 mb-4">Select applicable levels and specify exact headcount target.</p>
@@ -1076,10 +1113,16 @@ export default function DemandForm({ currentUser, onSubmitted }) {
                   </div>
                 )}
 
-                {/* Final Submission Bar */}
+                {/* Final Submission & Step Navigation Bar (Fix #4) */}
                 <div className="flex flex-col sm:flex-row justify-between items-center gap-4 pt-6 border-t border-slate-200 mt-8">
                   <div className="flex items-center gap-4 w-full sm:w-auto">
-                    <button type="button" onClick={handleBack} className="px-5 py-2.5 bg-slate-100 hover:bg-slate-200 text-[#1E293B] text-xs font-bold rounded-full transition">← Back</button>
+                    <button
+                      type="button"
+                      onClick={handleDemandBack}
+                      className="px-5 py-2.5 bg-slate-100 hover:bg-slate-200 text-[#1E293B] text-xs font-bold rounded-full transition"
+                    >
+                      ← Back
+                    </button>
                     <span className="text-xs text-slate-500"><span className="text-[#E01A8A] font-bold">*</span> Generates single REQ-ID on submit</span>
                   </div>
                   <button type="button" disabled={!isDemandValid() || submitting} onClick={handleSubmit} className={`w-full sm:w-auto px-10 py-3 rounded-full text-xs font-bold transition-all ${
@@ -1095,10 +1138,10 @@ export default function DemandForm({ currentUser, onSubmitted }) {
         </div>
       </div>
 
-      {/* MULTI-POSITION DEMAND MATRIX MODAL */}
+      {/* MULTI-POSITION DEMAND MATRIX MODAL (Fix #3: Sub Stream & Track Removed) */}
       {isMatrixOpen && (
         <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in duration-200">
-          <div className="bg-white max-w-[1240px] w-full rounded-2xl shadow-2xl flex flex-col max-h-[92vh] overflow-hidden text-slate-900">
+          <div className="bg-white max-w-[1100px] w-full rounded-2xl shadow-2xl flex flex-col max-h-[92vh] overflow-hidden text-slate-900">
             
             {/* Modal Header Ribbon */}
             <div className="bg-gradient-to-r from-[#E01A8A] to-[#9000FF] px-6 py-4 flex justify-between items-center">
@@ -1148,8 +1191,6 @@ export default function DemandForm({ currentUser, onSubmitted }) {
                   <tr>
                     <th className="py-2.5 px-3 rounded-tl-lg font-semibold">Pos # (Sub-ID)</th>
                     <th className="py-2.5 px-3 font-semibold">Stream <span className="text-[#E01A8A]">*</span></th>
-                    <th className="py-2.5 px-3 font-semibold">Sub Stream</th>
-                    <th className="py-2.5 px-3 font-semibold">Track</th>
                     <th className="py-2.5 px-3 font-semibold">Level <span className="text-[#E01A8A]">*</span></th>
                     <th className="py-2.5 px-3 font-semibold">No. Pos <span className="text-[#E01A8A]">*</span></th>
                     <th className="py-2.5 px-3 font-semibold">Primary Skills <span className="text-[#E01A8A]">*</span></th>
@@ -1162,7 +1203,7 @@ export default function DemandForm({ currentUser, onSubmitted }) {
                 <tbody className="divide-y divide-slate-100 text-slate-900">
                   {formData.matrixPositions.length === 0 ? (
                     <tr>
-                      <td colSpan={11} className="py-12 text-center text-slate-400 italic">
+                      <td colSpan={9} className="py-12 text-center text-slate-400 italic">
                         No positions configured. Click "+ Add Position Row" or "Bulk Import" to start.
                       </td>
                     </tr>
@@ -1179,27 +1220,13 @@ export default function DemandForm({ currentUser, onSubmitted }) {
                             <select
                               value={row.stream}
                               onChange={(e) => handleUpdateMatrixRow(row.id, 'stream', e.target.value)}
-                              className={`w-36 p-1.5 border rounded outline-none bg-white text-slate-900 ${
+                              className={`w-40 p-1.5 border rounded outline-none bg-white text-slate-900 ${
                                 !row.stream && touchedFields ? 'border-[#E01A8A]' : 'border-slate-200 focus:border-[#00F0FF]'
                               }`}
                             >
                               <option value="" className="text-slate-900 bg-white">Select Stream...</option>
                               {masterStreamsList.map(s => <option key={s} value={s} className="text-slate-900 bg-white">{s}</option>)}
                             </select>
-                          </td>
-                          <td className="py-2 px-2">
-                            <input
-                              type="text" placeholder="Sub Stream" value={row.subStream}
-                              onChange={(e) => handleUpdateMatrixRow(row.id, 'subStream', e.target.value)}
-                              className="w-32 p-1.5 border border-slate-200 rounded outline-none bg-white text-slate-900 focus:border-[#00F0FF]"
-                            />
-                          </td>
-                          <td className="py-2 px-2">
-                            <input
-                              type="text" placeholder="Track" value={row.track}
-                              onChange={(e) => handleUpdateMatrixRow(row.id, 'track', e.target.value)}
-                              className="w-32 p-1.5 border border-slate-200 rounded outline-none bg-white text-slate-900 focus:border-[#00F0FF]"
-                            />
                           </td>
                           <td className="py-2 px-2">
                             <select
@@ -1225,7 +1252,7 @@ export default function DemandForm({ currentUser, onSubmitted }) {
                             <input
                               type="text" placeholder="React, Python..." value={row.primarySkills}
                               onChange={(e) => handleUpdateMatrixRow(row.id, 'primarySkills', e.target.value)}
-                              className={`w-40 p-1.5 border rounded outline-none bg-white text-slate-900 ${
+                              className={`w-48 p-1.5 border rounded outline-none bg-white text-slate-900 ${
                                 !row.primarySkills.trim() && touchedFields ? 'border-[#E01A8A]' : 'border-slate-200 focus:border-[#00F0FF]'
                               }`}
                             />
@@ -1234,7 +1261,7 @@ export default function DemandForm({ currentUser, onSubmitted }) {
                             <input
                               type="text" placeholder="Secondary skills..." value={row.secondarySkills}
                               onChange={(e) => handleUpdateMatrixRow(row.id, 'secondarySkills', e.target.value)}
-                              className="w-32 p-1.5 border border-slate-200 rounded outline-none bg-white text-slate-900 focus:border-[#00F0FF]"
+                              className="w-36 p-1.5 border border-slate-200 rounded outline-none bg-white text-slate-900 focus:border-[#00F0FF]"
                             />
                           </td>
                           <td className="py-2 px-2">
