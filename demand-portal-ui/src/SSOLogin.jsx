@@ -27,7 +27,6 @@ export default function SSOLogin({ onLoginSuccess }) {
 
       onLoginSuccess(data.user || { email, user_type: userType, role: stakeholderRole, name });
     } catch (err) {
-      // Local fallback for offline simulation
       onLoginSuccess({
         email,
         user_type: userType,
@@ -40,7 +39,6 @@ export default function SSOLogin({ onLoginSuccess }) {
   };
 
   return (
-    // Canvas: Pearl (#F8FAFC) with soft ambient celebration tints
     <div className="relative min-h-screen w-full bg-[#F8FAFC] flex items-center justify-center p-4 font-sans overflow-hidden">
       
       {/* Ambient Faded Wave Orbs */}
@@ -57,41 +55,38 @@ export default function SSOLogin({ onLoginSuccess }) {
         aria-hidden="true"
       />
 
-      {/* Card Container: Pure White (#FFFFFF) with delicate Neon Cyan stroke & soft depth */}
+      {/* Login Card */}
       <div className="relative z-10 max-w-md w-full bg-white rounded-2xl border border-[#00F0FF] shadow-[0_10px_25px_-5px_rgba(15,23,42,0.08),0_8px_10px_-6px_rgba(15,23,42,0.05),0_0_25px_rgba(0,240,255,0.2)] overflow-hidden transition-all duration-300">
         
-        {/* Header & Official Dual Branding */}
         <div className="pt-8 pb-5 px-8 text-center">
           
-          {/* Dual Logos: Left: tiger-logo | Right: tiger-15th-logo */}
-          <div className="flex items-center justify-center gap-3.5 mb-5">
+          {/* Dual Logos - Perfectly Matched Scale and Pure White Integration */}
+          <div className="flex items-center justify-center gap-4 mb-5">
             <img 
               src="/tiger-logo.png" 
               alt="Tiger Analytics" 
-              className="h-10 w-auto object-contain"
+              className="h-10 md:h-11 w-auto object-contain bg-transparent"
               onError={(e) => {
                 e.target.onerror = null;
                 e.target.src = "https://placehold.co/140x36/FFFFFF/0F172A?text=Tiger+Analytics";
               }}
             />
 
-            <div className="h-7 w-[1.5px] bg-slate-300" />
+            <div className="h-8 w-[1.5px] bg-slate-200" />
 
             <img 
               src="/tiger-15th-logo.png" 
-              alt="15 Years of Ingenuity" 
-              className="h-10 w-auto object-contain rounded-md shadow-sm"
+              alt="15 Years Powered by Ingenuity" 
+              className="h-13 md:h-14 w-auto object-contain bg-white mix-blend-multiply"
               onError={(e) => {
                 e.target.onerror = null;
-                e.target.src = "https://placehold.co/110x36/05050A/E01A8A?text=15+Years";
+                e.target.src = "https://placehold.co/110x36/FFFFFF/E01A8A?text=15+Years";
               }}
             />
           </div>
 
-          {/* Cyan to Magenta Gradient Accent Line under Logos */}
           <div className="h-[2px] w-3/4 mx-auto bg-gradient-to-r from-[#00F0FF] via-[#8F00FF]/40 to-[#E01A8A] rounded-full mb-6 opacity-80" />
 
-          {/* Portal Title & Subtitle */}
           <h2 className="text-2xl font-bold tracking-tight text-[#0F172A]">
             Demand Management Portal
           </h2>
@@ -100,7 +95,6 @@ export default function SSOLogin({ onLoginSuccess }) {
           </p>
         </div>
 
-        {/* SSO Form Controls */}
         <form onSubmit={handleSSO} className="px-8 pb-8 pt-2 space-y-6">
           {error && (
             <div className="p-3.5 bg-rose-50 text-rose-700 text-xs rounded-xl border border-rose-200 font-semibold shadow-sm">
@@ -134,7 +128,6 @@ export default function SSOLogin({ onLoginSuccess }) {
             </div>
           </div>
 
-          {/* Primary Action Button */}
           <button
             type="submit"
             disabled={loading}

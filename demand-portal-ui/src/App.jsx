@@ -33,31 +33,31 @@ export default function App() {
   return (
     <div className="min-h-screen bg-[#F8FAFC] flex flex-col font-sans text-[#0F172A]">
       
-      {/* Top Navigation Bar: Pure White with Dual Brand Logos */}
-      <header className="bg-white border-b border-slate-200 px-6 md:px-8 py-3.5 shadow-sm relative">
+      {/* Top Navigation Bar: Pure White with Balanced Dual Brand Logos */}
+      <header className="bg-white border-b border-slate-200 px-6 md:px-8 py-3 shadow-sm relative">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           
           {/* Dual Branding: Left: tiger-logo | Right: tiger-15th-logo */}
-          <div className="flex items-center gap-3.5">
+          <div className="flex items-center gap-4">
             <img 
               src="/tiger-logo.png" 
               alt="Tiger Analytics" 
-              className="h-8 md:h-9 w-auto object-contain cursor-pointer"
+              className="h-9 md:h-10 w-auto object-contain cursor-pointer bg-transparent"
               onError={(e) => {
                 e.target.onerror = null;
                 e.target.src = "https://placehold.co/130x32/FFFFFF/0F172A?text=Tiger+Analytics";
               }}
             />
 
-            <div className="h-6 w-[1.5px] bg-slate-300" />
+            <div className="h-7 w-[1.5px] bg-slate-200" />
 
             <img 
               src="/tiger-15th-logo.png" 
               alt="15 Years Powered by Ingenuity" 
-              className="h-8 md:h-9 w-auto object-contain rounded-md shadow-sm"
+              className="h-11 md:h-12 w-auto object-contain bg-white mix-blend-multiply"
               onError={(e) => {
                 e.target.onerror = null;
-                e.target.src = "https://placehold.co/100x32/05050A/E01A8A?text=15+Years";
+                e.target.src = "https://placehold.co/100x32/FFFFFF/E01A8A?text=15+Years";
               }}
             />
           </div>
@@ -83,7 +83,6 @@ export default function App() {
           </div>
         </div>
 
-        {/* Celebratory Gradient Bottom Border */}
         <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-gradient-to-r from-[#00F0FF] via-[#8F00FF] to-[#E01A8A] opacity-90" />
       </header>
 
@@ -114,7 +113,6 @@ export default function App() {
             {isAdmin ? 'Admin / Partner Dashboard' : 'My Requests'}
           </button>
 
-          {/* Admin Reports View (Markup #14) */}
           {isAdmin && (
             <button
               onClick={() => setView('reports')}
