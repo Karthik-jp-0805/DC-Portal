@@ -40,7 +40,7 @@ export default function SSOLogin({ onLoginSuccess }) {
   };
 
   return (
-    // Canvas: Pearl (#F8FAFC) with soft ambient pastel celebration glows
+    // Canvas: Pearl (#F8FAFC) with soft ambient celebration tints
     <div className="relative min-h-screen w-full bg-[#F8FAFC] flex items-center justify-center p-4 font-sans overflow-hidden">
       
       {/* Ambient Faded Wave Orbs */}
@@ -57,65 +57,38 @@ export default function SSOLogin({ onLoginSuccess }) {
         aria-hidden="true"
       />
 
-      {/* Decorative Subtle Wave Vectors */}
-      <svg 
-        className="absolute inset-0 w-full h-full pointer-events-none opacity-40" 
-        xmlns="http://www.w3.org/2000/svg"
-        preserveAspectRatio="none"
-        viewBox="0 0 1440 900"
-      >
-        <path 
-          d="M-100,500 C300,750 650,250 1100,600 C1300,750 1500,450 1600,400" 
-          fill="none" 
-          stroke="url(#magentaWaveLight)" 
-          strokeWidth="2" 
-        />
-        <path 
-          d="M-50,300 C400,100 800,800 1250,350 C1400,200 1550,500 1600,550" 
-          fill="none" 
-          stroke="url(#cyanWaveLight)" 
-          strokeWidth="2" 
-        />
-        <defs>
-          <linearGradient id="magentaWaveLight" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#E01A8A" stopOpacity="0.3" />
-            <stop offset="100%" stopColor="#E01A8A" stopOpacity="0.0" />
-          </linearGradient>
-          <linearGradient id="cyanWaveLight" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#00F0FF" stopOpacity="0.0" />
-            <stop offset="50%" stopColor="#00F0FF" stopOpacity="0.35" />
-            <stop offset="100%" stopColor="#00F0FF" stopOpacity="0.0" />
-          </linearGradient>
-        </defs>
-      </svg>
-
       {/* Card Container: Pure White (#FFFFFF) with delicate Neon Cyan stroke & soft depth */}
       <div className="relative z-10 max-w-md w-full bg-white rounded-2xl border border-[#00F0FF] shadow-[0_10px_25px_-5px_rgba(15,23,42,0.08),0_8px_10px_-6px_rgba(15,23,42,0.05),0_0_25px_rgba(0,240,255,0.2)] overflow-hidden transition-all duration-300">
         
-        {/* Header & Official Branding */}
+        {/* Header & Official Dual Branding */}
         <div className="pt-8 pb-5 px-8 text-center">
           
-          {/* Logo Bar */}
-          <div className="flex items-center justify-center gap-4 mb-4">
+          {/* Dual Logos: Left: tiger-logo | Right: tiger-15th-logo */}
+          <div className="flex items-center justify-center gap-3.5 mb-5">
             <img 
               src="/tiger-logo.png" 
               alt="Tiger Analytics" 
-              className="h-9 w-auto object-contain"
+              className="h-10 w-auto object-contain"
               onError={(e) => {
                 e.target.onerror = null;
                 e.target.src = "https://placehold.co/140x36/FFFFFF/0F172A?text=Tiger+Analytics";
               }}
             />
 
-            <div className="h-6 w-[1.5px] bg-slate-300" />
+            <div className="h-7 w-[1.5px] bg-slate-300" />
 
-            <div className="flex items-center gap-1 px-2.5 py-1 rounded-md border border-[#E01A8A]/30 bg-[#FCE7F3]/40">
-              <span className="text-xs font-black text-[#E01A8A] tracking-wider">15</span>
-              <span className="text-[9px] font-bold text-[#8F00FF] tracking-wider uppercase">INGENUITY</span>
-            </div>
+            <img 
+              src="/tiger-15th-logo.png" 
+              alt="15 Years of Ingenuity" 
+              className="h-10 w-auto object-contain rounded-md shadow-sm"
+              onError={(e) => {
+                e.target.onerror = null;
+                e.target.src = "https://placehold.co/110x36/05050A/E01A8A?text=15+Years";
+              }}
+            />
           </div>
 
-          {/* Cyan to Magenta Gradient Accent Line under Logo */}
+          {/* Cyan to Magenta Gradient Accent Line under Logos */}
           <div className="h-[2px] w-3/4 mx-auto bg-gradient-to-r from-[#00F0FF] via-[#8F00FF]/40 to-[#E01A8A] rounded-full mb-6 opacity-80" />
 
           {/* Portal Title & Subtitle */}
