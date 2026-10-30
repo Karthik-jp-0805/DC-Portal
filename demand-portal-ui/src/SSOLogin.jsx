@@ -1,143 +1,191 @@
 import React, { useState } from 'react';
+import SSOLogin from './SSOLogin';
+import DemandForm from './DemandForm';
+import AdminDashboard from './AdminDashboard';
+import AdminReportsDashboard from './AdminReportsDashboard';
+import MasterDataGovernance from './MasterDataGovernance';
 
-export default function SSOLogin({ onLoginSuccess }) {
-  const [roleSelection, setRoleSelection] = useState('demand_creation');
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
+export default function App() {
+  const [currentUser, setCurrentUser] = useState(null);
+  const [view, setView] = useState('form');
+  const [lastSubmittedId, setLastSubmittedId] = useState('');
 
-  const handleSSO = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    setError('');
-
-    const email = roleSelection === 'demand_creation' ? 'Sample@tigeranalytics.com' : 'Admin001@tigeranalytics.com';
-    const userType = roleSelection === 'demand_creation' ? 'employee' : 'admin';
-    const stakeholderRole = roleSelection === 'admin_partner' ? 'Portal Admin' : 'Demand Creation';
-    const name = roleSelection === 'demand_creation' ? 'Karthikeyan Jayaprakash' : 'Portal Admin';
-
-    try {
-      const res = await fetch('/api/v1/auth/google-sso', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, user_type: userType, stakeholder_role: stakeholderRole })
-      });
-
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.detail || 'Authentication failed.');
-
-      onLoginSuccess(data.user || { email, user_type: userType, role: stakeholderRole, name });
-    } catch (err) {
-      onLoginSuccess({
-        email,
-        user_type: userType,
-        role: stakeholderRole,
-        name
-      });
-    } finally {
-      setLoading(false);
+  const handleLoginSuccess = (user) => {
+    setCurrentUser(user);
+    if (user.user_type === 'admin' || user.role === 'Portal Admin' || user.role === 'Super Admin') {
+      setView('dashboard');
+    } else {
+      setView('form');
     }
   };
 
-  return (
-    <div className="relative min-h-screen w-full bg-[#F8FAFC] flex items-center justify-center p-4 font-sans overflow-hidden">
-      
-      {/* Ambient Faded Wave Orbs */}
-      <div 
-        className="absolute -left-48 top-1/4 w-[650px] h-[650px] rounded-full bg-[#FCE7F3]/70 blur-[130px] pointer-events-none" 
-        aria-hidden="true"
-      />
-      <div 
-        className="absolute -right-48 bottom-1/4 w-[650px] h-[650px] rounded-full bg-[#ECFEFF]/80 blur-[130px] pointer-events-none" 
-        aria-hidden="true"
-      />
-      <div 
-        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[850px] h-[550px] rounded-full bg-[#F1F5F9]/60 blur-[120px] pointer-events-none" 
-        aria-hidden="true"
-      />
+  const handleLogout = () => {
+    setCurrentUser(null);
+    setView('form');
+    setLastSubmittedId('');
+  };
 
-      {/* Login Card */}
-      <div className="relative z-10 max-w-md w-full bg-white rounded-2xl border border-[#00F0FF] shadow-[0_10px_25px_-5px_rgba(15,23,42,0.08),0_8px_10px_-6px_rgba(15,23,42,0.05),0_0_25px_rgba(0,240,255,0.2)] overflow-hidden transition-all duration-300">
-        
-        <div className="pt-8 pb-5 px-8 text-center">
+  if (!currentUser) {
+    return <SSOLogin onLoginSuccess={handleLoginSuccess} />;
+  }
+
+  const isAdmin = currentUser.user_type === 'admin' || currentUser.role === 'Portal Admin' || currentUser.role === 'Super Admin';
+  const isSuperAdmin = currentUser.role === 'Super Admin';
+
+  return (
+    <div className="min-h-screen bg-[#F8FAFC] flex flex-col font-sans text-[#0F172A]">
+      
+      {/* Top Navigation Bar: Pure White with Balanced Dual Brand Logos */}
+      <header className="bg-white border-b border-slate-200 px-6 md:px-8 py-3 shadow-sm relative z-20">
+        <div className="max-w-[1400px] mx-auto flex items-center justify-between">
           
-          {/* Dual Logos - Perfectly Matched Scale and Pure White Integration */}
-          <div className="flex items-center justify-center gap-4 mb-5">
+          {/* Dual Branding: Left: tiger-logo | Right: tiger-15th-logo */}
+          <div className="flex items-center gap-4">
             <img 
               src="/tiger-logo.png" 
               alt="Tiger Analytics" 
-              className="h-10 md:h-11 w-auto object-contain bg-transparent"
+              className="h-9 md:h-10 w-auto object-contain cursor-pointer bg-transparent"
               onError={(e) => {
                 e.target.onerror = null;
-                e.target.src = "https://placehold.co/140x36/FFFFFF/0F172A?text=Tiger+Analytics";
+                e.target.src = "https://placehold.co/130x32/FFFFFF/0F172A?text=Tiger+Analytics";
               }}
             />
 
-            <div className="h-8 w-[1.5px] bg-slate-200" />
+            <div className="h-7 w-[1.5px] bg-slate-200" />
 
             <img 
               src="/tiger-15th-logo.png" 
               alt="15 Years Powered by Ingenuity" 
-              className="h-13 md:h-14 w-auto object-contain bg-white mix-blend-multiply"
+              className="h-11 md:h-12 w-auto object-contain bg-white mix-blend-multiply"
               onError={(e) => {
                 e.target.onerror = null;
-                e.target.src = "https://placehold.co/110x36/FFFFFF/E01A8A?text=15+Years";
+                e.target.src = "https://placehold.co/100x32/FFFFFF/E01A8A?text=15+Years";
               }}
             />
           </div>
 
-          <div className="h-[2px] w-3/4 mx-auto bg-gradient-to-r from-[#00F0FF] via-[#8F00FF]/40 to-[#E01A8A] rounded-full mb-6 opacity-80" />
+          {/* User Profile Pill & Sign Out */}
+          <div className="flex items-center gap-5">
+            <div className="flex items-center px-4 py-1.5 rounded-full bg-white border border-[#00F0FF] shadow-sm">
+              <span className="text-xs font-semibold text-[#0F172A] tracking-wide">
+                {currentUser?.name || (isAdmin ? 'Admin' : 'Karthikeyan Jayaprakash')}
+              </span>
+              <span className="mx-2 text-xs font-light text-slate-300">|</span>
+              <span className="text-xs font-bold text-[#E01A8A]">
+                {currentUser?.role || (isAdmin ? 'Portal Admin' : 'Demand Creation')}
+              </span>
+            </div>
 
-          <h2 className="text-2xl font-bold tracking-tight text-[#0F172A]">
-            Demand Management Portal
-          </h2>
-          <p className="text-[#475569] text-xs mt-1.5 font-medium tracking-wide">
-            Single Sign-On Authentication
-          </p>
+            <button
+              onClick={handleLogout}
+              className="text-xs font-semibold text-[#475569] hover:text-[#0F172A] underline underline-offset-4 transition cursor-pointer"
+            >
+              Sign Out
+            </button>
+          </div>
         </div>
 
-        <form onSubmit={handleSSO} className="px-8 pb-8 pt-2 space-y-6">
-          {error && (
-            <div className="p-3.5 bg-rose-50 text-rose-700 text-xs rounded-xl border border-rose-200 font-semibold shadow-sm">
-              ⚠ {error}
-            </div>
+        <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-gradient-to-r from-[#00F0FF] via-[#8F00FF] to-[#E01A8A] opacity-90" />
+      </header>
+
+      {/* Sub-Navigation Tabs */}
+      <nav className="bg-white/80 backdrop-blur-sm border-b border-slate-200 px-6 md:px-8 shadow-inner z-10 relative">
+        <div className="max-w-[1400px] mx-auto flex gap-6">
+          {!isAdmin && (
+            <button
+              onClick={() => setView('form')}
+              className={`py-3.5 text-xs font-bold border-b-2 transition-all cursor-pointer ${
+                view === 'form'
+                  ? 'border-[#E01A8A] text-[#E01A8A]'
+                  : 'border-transparent text-[#475569] hover:text-[#0F172A]'
+              }`}
+            >
+              Submit New Request
+            </button>
           )}
 
-          <div>
-            <label className="block text-xs font-bold text-[#0F172A] mb-2 tracking-wide">
-              Select Login Profile
-            </label>
-            <div className="relative">
-              <select
-                value={roleSelection}
-                onChange={(e) => setRoleSelection(e.target.value)}
-                className="w-full p-3.5 bg-white border border-slate-300 hover:border-[#00F0FF] focus:border-[#00F0FF] text-[#0F172A] rounded-xl text-xs font-medium focus:ring-2 focus:ring-[#00F0FF]/20 focus:outline-none transition cursor-pointer appearance-none pr-10 shadow-sm"
-              >
-                <option value="demand_creation" className="bg-white text-[#0F172A]">
-                  Demand Creation (Sample@tigeranalytics.com)
-                </option>
-                <option value="admin_partner" className="bg-white text-[#0F172A]">
-                  Admin / Partner (Admin001@tigeranalytics.com)
-                </option>
-              </select>
-              
-              <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3.5 text-slate-500">
-                <svg className="w-4 h-4 fill-current" viewBox="0 0 20 20">
-                  <path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" />
-                </svg>
-              </div>
-            </div>
-          </div>
-
           <button
-            type="submit"
-            disabled={loading}
-            className="w-full py-3.5 bg-gradient-to-r from-[#E01A8A] via-[#C91780] to-[#8F00FF] hover:opacity-95 text-white font-bold rounded-xl text-sm shadow-[0_0_20px_rgba(224,26,138,0.4)] hover:shadow-[0_0_28px_rgba(224,26,138,0.6)] transition-all duration-200 flex items-center justify-center cursor-pointer active:scale-[0.99]"
+            onClick={() => setView('dashboard')}
+            className={`py-3.5 text-xs font-bold border-b-2 transition-all cursor-pointer ${
+              view === 'dashboard'
+                ? 'border-[#E01A8A] text-[#E01A8A]'
+                : 'border-transparent text-[#475569] hover:text-[#0F172A]'
+            }`}
           >
-            {loading ? 'Authenticating...' : 'Sign in with SSO'}
+            {isAdmin ? 'Admin / Partner Dashboard' : 'My Requests'}
           </button>
-        </form>
 
-      </div>
+          {isAdmin && (
+            <button
+              onClick={() => setView('reports')}
+              className={`py-3.5 text-xs font-bold border-b-2 transition-all cursor-pointer ${
+                view === 'reports'
+                  ? 'border-[#E01A8A] text-[#E01A8A]'
+                  : 'border-transparent text-[#475569] hover:text-[#0F172A]'
+              }`}
+            >
+              Reports
+            </button>
+          )}
+
+          {isSuperAdmin && (
+            <button
+              onClick={() => setView('master_data')}
+              className={`py-3.5 text-xs font-bold border-b-2 transition-all cursor-pointer flex items-center gap-1.5 ${
+                view === 'master_data'
+                  ? 'border-[#E01A8A] text-[#E01A8A]'
+                  : 'border-transparent text-[#475569] hover:text-[#0F172A]'
+              }`}
+            >
+              <span>Master Data (Super Admin)</span>
+              <span className="text-[9px] px-1.5 py-0.5 rounded-full border border-[#E01A8A] text-[#E01A8A]">RESTRICTED</span>
+            </button>
+          )}
+        </div>
+      </nav>
+
+      {/* Main Workspace Canvas */}
+      <main className="flex-1 overflow-hidden relative">
+        {view === 'form' && !isAdmin && (
+          <div className="p-6 md:p-8 overflow-y-auto h-full">
+            {lastSubmittedId && (
+              <div className="max-w-5xl mx-auto mb-6 p-4 bg-emerald-50 text-emerald-900 border border-emerald-200 rounded-xl text-xs flex justify-between items-center shadow-sm">
+                <span>
+                  <strong>Success!</strong> Request logged under Primary Key:{' '}
+                  <code className="bg-emerald-100 px-2 py-0.5 rounded font-mono font-bold text-emerald-800">
+                    {lastSubmittedId}
+                  </code>
+                </span>
+                <button
+                  onClick={() => setLastSubmittedId('')}
+                  className="font-bold text-emerald-700 hover:text-emerald-950"
+                >
+                  ✕
+                </button>
+              </div>
+            )}
+            <DemandForm
+              currentUser={currentUser}
+              onSubmitted={(id) => {
+                setLastSubmittedId(id);
+                setView('dashboard');
+              }}
+            />
+          </div>
+        )}
+
+        {view === 'dashboard' && (
+          <AdminDashboard currentUser={currentUser} />
+        )}
+
+        {view === 'reports' && isAdmin && (
+          <AdminReportsDashboard />
+        )}
+
+        {view === 'master_data' && isSuperAdmin && (
+          <MasterDataGovernance />
+        )}
+      </main>
     </div>
   );
 }
