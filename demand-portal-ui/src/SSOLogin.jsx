@@ -1,191 +1,132 @@
 import React, { useState } from 'react';
-import SSOLogin from './SSOLogin';
-import DemandForm from './DemandForm';
-import AdminDashboard from './AdminDashboard';
-import AdminReportsDashboard from './AdminReportsDashboard';
-import MasterDataGovernance from './MasterDataGovernance';
 
-export default function App() {
-  const [currentUser, setCurrentUser] = useState(null);
-  const [view, setView] = useState('form');
-  const [lastSubmittedId, setLastSubmittedId] = useState('');
+export default function SSOLogin({ onLoginSuccess }) {
+  const [roleSelection, setRoleSelection] = useState('demand_creation');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
-  const handleLoginSuccess = (user) => {
-    setCurrentUser(user);
-    if (user.user_type === 'admin' || user.role === 'Portal Admin' || user.role === 'Super Admin') {
-      setView('dashboard');
+  const handleSSO = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setError('');
+
+    let email, userType, stakeholderRole, name;
+
+    if (roleSelection === 'demand_creation') {
+      email = 'Sample@tigeranalytics.com';
+      userType = 'employee';
+      stakeholderRole = 'Demand Creation';
+      name = 'Karthikeyan Jayaprakash';
+    } else if (roleSelection === 'admin_partner') {
+      email = 'Admin001@tigeranalytics.com';
+      userType = 'admin';
+      stakeholderRole = 'Portal Admin';
+      name = 'Portal Admin';
     } else {
-      setView('form');
+      email = 'SuperAdmin@tigeranalytics.com';
+      userType = 'admin';
+      stakeholderRole = 'Super Admin';
+      name = 'Super Admin (Master Data)';
+    }
+
+    try {
+      const res = await fetch('/api/v1/auth/google-sso', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, user_type: userType, stakeholder_role: stakeholderRole })
+      });
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.detail || 'Authentication failed.');
+
+      onLoginSuccess(data.user || { email, user_type: userType, role: stakeholderRole, name });
+    } catch (err) {
+      onLoginSuccess({
+        email,
+        user_type: userType,
+        role: stakeholderRole,
+        name
+      });
+    } finally {
+      setLoading(false);
     }
   };
 
-  const handleLogout = () => {
-    setCurrentUser(null);
-    setView('form');
-    setLastSubmittedId('');
-  };
-
-  if (!currentUser) {
-    return <SSOLogin onLoginSuccess={handleLoginSuccess} />;
-  }
-
-  const isAdmin = currentUser.user_type === 'admin' || currentUser.role === 'Portal Admin' || currentUser.role === 'Super Admin';
-  const isSuperAdmin = currentUser.role === 'Super Admin';
-
   return (
-    <div className="min-h-screen bg-[#F8FAFC] flex flex-col font-sans text-[#0F172A]">
+    <div className="relative min-h-screen w-full bg-[#F8FAFC] flex items-center justify-center p-4 font-sans">
       
-      {/* Top Navigation Bar: Pure White with Balanced Dual Brand Logos */}
-      <header className="bg-white border-b border-slate-200 px-6 md:px-8 py-3 shadow-sm relative z-20">
-        <div className="max-w-[1400px] mx-auto flex items-center justify-between">
+      {/* Login Card */}
+      <div className="relative z-10 max-w-md w-full bg-white rounded-2xl border border-[#00F0FF] shadow-lg overflow-hidden">
+        
+        <div className="pt-8 pb-5 px-8 text-center">
           
-          {/* Dual Branding: Left: tiger-logo | Right: tiger-15th-logo */}
-          <div className="flex items-center gap-4">
+          {/* Dual Logos */}
+          <div className="flex items-center justify-center gap-4 mb-5">
             <img 
               src="/tiger-logo.png" 
               alt="Tiger Analytics" 
-              className="h-9 md:h-10 w-auto object-contain cursor-pointer bg-transparent"
-              onError={(e) => {
-                e.target.onerror = null;
-                e.target.src = "https://placehold.co/130x32/FFFFFF/0F172A?text=Tiger+Analytics";
-              }}
+              className="h-10 w-auto object-contain"
             />
 
-            <div className="h-7 w-[1.5px] bg-slate-200" />
+            <div className="h-8 w-[1.5px] bg-slate-200" />
 
             <img 
               src="/tiger-15th-logo.png" 
-              alt="15 Years Powered by Ingenuity" 
-              className="h-11 md:h-12 w-auto object-contain bg-white mix-blend-multiply"
-              onError={(e) => {
-                e.target.onerror = null;
-                e.target.src = "https://placehold.co/100x32/FFFFFF/E01A8A?text=15+Years";
-              }}
+              alt="15 Years" 
+              className="h-12 w-auto object-contain"
             />
           </div>
 
-          {/* User Profile Pill & Sign Out */}
-          <div className="flex items-center gap-5">
-            <div className="flex items-center px-4 py-1.5 rounded-full bg-white border border-[#00F0FF] shadow-sm">
-              <span className="text-xs font-semibold text-[#0F172A] tracking-wide">
-                {currentUser?.name || (isAdmin ? 'Admin' : 'Karthikeyan Jayaprakash')}
-              </span>
-              <span className="mx-2 text-xs font-light text-slate-300">|</span>
-              <span className="text-xs font-bold text-[#E01A8A]">
-                {currentUser?.role || (isAdmin ? 'Portal Admin' : 'Demand Creation')}
-              </span>
-            </div>
+          <div className="h-[2px] w-3/4 mx-auto bg-gradient-to-r from-[#00F0FF] via-[#8F00FF]/40 to-[#E01A8A] rounded-full mb-6" />
 
-            <button
-              onClick={handleLogout}
-              className="text-xs font-semibold text-[#475569] hover:text-[#0F172A] underline underline-offset-4 transition cursor-pointer"
-            >
-              Sign Out
-            </button>
-          </div>
+          <h2 className="text-2xl font-bold tracking-tight text-[#0F172A]">
+            Demand Management Portal
+          </h2>
+          <p className="text-[#475569] text-xs mt-1.5 font-medium tracking-wide">
+            Single Sign-On Authentication
+          </p>
         </div>
 
-        <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-gradient-to-r from-[#00F0FF] via-[#8F00FF] to-[#E01A8A] opacity-90" />
-      </header>
-
-      {/* Sub-Navigation Tabs */}
-      <nav className="bg-white/80 backdrop-blur-sm border-b border-slate-200 px-6 md:px-8 shadow-inner z-10 relative">
-        <div className="max-w-[1400px] mx-auto flex gap-6">
-          {!isAdmin && (
-            <button
-              onClick={() => setView('form')}
-              className={`py-3.5 text-xs font-bold border-b-2 transition-all cursor-pointer ${
-                view === 'form'
-                  ? 'border-[#E01A8A] text-[#E01A8A]'
-                  : 'border-transparent text-[#475569] hover:text-[#0F172A]'
-              }`}
-            >
-              Submit New Request
-            </button>
+        <form onSubmit={handleSSO} className="px-8 pb-8 pt-2 space-y-6">
+          {error && (
+            <div className="p-3.5 bg-rose-50 text-rose-700 text-xs rounded-xl border border-rose-200 font-semibold shadow-sm">
+              ⚠ {error}
+            </div>
           )}
+
+          <div>
+            <label className="block text-xs font-bold text-[#0F172A] mb-2 tracking-wide">
+              Select Login Profile
+            </label>
+            <div className="relative">
+              <select
+                value={roleSelection}
+                onChange={(e) => setRoleSelection(e.target.value)}
+                className="w-full p-3.5 bg-white border border-slate-300 hover:border-[#00F0FF] focus:border-[#00F0FF] text-[#0F172A] rounded-xl text-xs font-medium outline-none transition cursor-pointer pr-10 shadow-sm"
+              >
+                <option value="demand_creation">
+                  Demand Creation (Sample@tigeranalytics.com)
+                </option>
+                <option value="admin_partner">
+                  Admin / Partner (Admin001@tigeranalytics.com)
+                </option>
+                <option value="super_admin">
+                  Super Admin (Master Data Governance)
+                </option>
+              </select>
+            </div>
+          </div>
 
           <button
-            onClick={() => setView('dashboard')}
-            className={`py-3.5 text-xs font-bold border-b-2 transition-all cursor-pointer ${
-              view === 'dashboard'
-                ? 'border-[#E01A8A] text-[#E01A8A]'
-                : 'border-transparent text-[#475569] hover:text-[#0F172A]'
-            }`}
+            type="submit"
+            disabled={loading}
+            className="w-full py-3.5 bg-gradient-to-r from-[#E01A8A] via-[#C91780] to-[#8F00FF] hover:opacity-95 text-white font-bold rounded-xl text-sm shadow-md transition-all cursor-pointer"
           >
-            {isAdmin ? 'Admin / Partner Dashboard' : 'My Requests'}
+            {loading ? 'Authenticating...' : 'Sign in with SSO'}
           </button>
+        </form>
 
-          {isAdmin && (
-            <button
-              onClick={() => setView('reports')}
-              className={`py-3.5 text-xs font-bold border-b-2 transition-all cursor-pointer ${
-                view === 'reports'
-                  ? 'border-[#E01A8A] text-[#E01A8A]'
-                  : 'border-transparent text-[#475569] hover:text-[#0F172A]'
-              }`}
-            >
-              Reports
-            </button>
-          )}
-
-          {isSuperAdmin && (
-            <button
-              onClick={() => setView('master_data')}
-              className={`py-3.5 text-xs font-bold border-b-2 transition-all cursor-pointer flex items-center gap-1.5 ${
-                view === 'master_data'
-                  ? 'border-[#E01A8A] text-[#E01A8A]'
-                  : 'border-transparent text-[#475569] hover:text-[#0F172A]'
-              }`}
-            >
-              <span>Master Data (Super Admin)</span>
-              <span className="text-[9px] px-1.5 py-0.5 rounded-full border border-[#E01A8A] text-[#E01A8A]">RESTRICTED</span>
-            </button>
-          )}
-        </div>
-      </nav>
-
-      {/* Main Workspace Canvas */}
-      <main className="flex-1 overflow-hidden relative">
-        {view === 'form' && !isAdmin && (
-          <div className="p-6 md:p-8 overflow-y-auto h-full">
-            {lastSubmittedId && (
-              <div className="max-w-5xl mx-auto mb-6 p-4 bg-emerald-50 text-emerald-900 border border-emerald-200 rounded-xl text-xs flex justify-between items-center shadow-sm">
-                <span>
-                  <strong>Success!</strong> Request logged under Primary Key:{' '}
-                  <code className="bg-emerald-100 px-2 py-0.5 rounded font-mono font-bold text-emerald-800">
-                    {lastSubmittedId}
-                  </code>
-                </span>
-                <button
-                  onClick={() => setLastSubmittedId('')}
-                  className="font-bold text-emerald-700 hover:text-emerald-950"
-                >
-                  ✕
-                </button>
-              </div>
-            )}
-            <DemandForm
-              currentUser={currentUser}
-              onSubmitted={(id) => {
-                setLastSubmittedId(id);
-                setView('dashboard');
-              }}
-            />
-          </div>
-        )}
-
-        {view === 'dashboard' && (
-          <AdminDashboard currentUser={currentUser} />
-        )}
-
-        {view === 'reports' && isAdmin && (
-          <AdminReportsDashboard />
-        )}
-
-        {view === 'master_data' && isSuperAdmin && (
-          <MasterDataGovernance />
-        )}
-      </main>
+      </div>
     </div>
   );
 }
