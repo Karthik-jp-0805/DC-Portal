@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 
 export default function SSOLogin({ onLoginSuccess }) {
-  const [roleSelection, setRoleSelection] = useState('demand_creation');
+  const [roleSelection, setRoleSelection] = useState('admin_partner');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -10,7 +10,10 @@ export default function SSOLogin({ onLoginSuccess }) {
     setLoading(true);
     setError('');
 
-    let email, userType, stakeholderRole, name;
+    let email = '';
+    let userType = '';
+    let stakeholderRole = '';
+    let name = '';
 
     if (roleSelection === 'demand_creation') {
       email = 'Sample@tigeranalytics.com';
@@ -40,13 +43,9 @@ export default function SSOLogin({ onLoginSuccess }) {
       if (!res.ok) throw new Error(data.detail || 'Authentication failed.');
 
       onLoginSuccess(data.user || { email, user_type: userType, role: stakeholderRole, name });
-    } catch (err) {
-      onLoginSuccess({
-        email,
-        user_type: userType,
-        role: stakeholderRole,
-        name
-      });
+    } catch {
+      // Local fallback for offline simulation
+      onLoginSuccess({ email, user_type: userType, role: stakeholderRole, name });
     } finally {
       setLoading(false);
     }
@@ -54,12 +53,9 @@ export default function SSOLogin({ onLoginSuccess }) {
 
   return (
     <div className="relative min-h-screen w-full bg-[#F8FAFC] flex items-center justify-center p-4 font-sans">
-      
-      {/* Login Card */}
       <div className="relative z-10 max-w-md w-full bg-white rounded-2xl border border-[#00F0FF] shadow-lg overflow-hidden">
         
         <div className="pt-8 pb-5 px-8 text-center">
-          
           {/* Dual Logos */}
           <div className="flex items-center justify-center gap-4 mb-5">
             <img 
@@ -67,9 +63,7 @@ export default function SSOLogin({ onLoginSuccess }) {
               alt="Tiger Analytics" 
               className="h-10 w-auto object-contain"
             />
-
             <div className="h-8 w-[1.5px] bg-slate-200" />
-
             <img 
               src="/tiger-15th-logo.png" 
               alt="15 Years" 

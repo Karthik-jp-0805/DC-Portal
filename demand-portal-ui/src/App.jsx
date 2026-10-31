@@ -7,21 +7,21 @@ import MasterDataGovernance from './MasterDataGovernance';
 
 export default function App() {
   const [currentUser, setCurrentUser] = useState(null);
-  const [view, setView] = useState('form');
+  const [view, setView] = useState('dashboard');
   const [lastSubmittedId, setLastSubmittedId] = useState('');
 
   const handleLoginSuccess = (user) => {
     setCurrentUser(user);
-    if (user.user_type === 'admin' || user.role === 'Portal Admin' || user.role === 'Super Admin') {
-      setView('dashboard');
-    } else {
+    if (user.role === 'Demand Creation') {
       setView('form');
+    } else {
+      setView('dashboard');
     }
   };
 
   const handleLogout = () => {
     setCurrentUser(null);
-    setView('form');
+    setView('dashboard');
     setLastSubmittedId('');
   };
 
@@ -29,38 +29,28 @@ export default function App() {
     return <SSOLogin onLoginSuccess={handleLoginSuccess} />;
   }
 
-  const isAdmin = currentUser.user_type === 'admin' || currentUser.role === 'Portal Admin' || currentUser.role === 'Super Admin';
-  const isSuperAdmin = currentUser.role === 'Super Admin';
+  const isAdmin = currentUser.role === 'Portal Admin' || currentUser.role === 'Super Admin';
+  const isSuperAdmin = currentUser.role === 'Super Admin' || currentUser.email === 'SuperAdmin@tigeranalytics.com';
 
   return (
     <div className="min-h-screen bg-[#F8FAFC] flex flex-col font-sans text-[#0F172A]">
       
-      {/* Top Navigation Bar: Pure White with Balanced Dual Brand Logos */}
+      {/* Top Header */}
       <header className="bg-white border-b border-slate-200 px-6 md:px-8 py-3 shadow-sm relative z-20">
         <div className="max-w-[1400px] mx-auto flex items-center justify-between">
           
-          {/* Dual Branding: Left: tiger-logo | Right: tiger-15th-logo */}
+          {/* Dual Branding */}
           <div className="flex items-center gap-4">
             <img 
               src="/tiger-logo.png" 
               alt="Tiger Analytics" 
-              className="h-9 md:h-10 w-auto object-contain cursor-pointer bg-transparent"
-              onError={(e) => {
-                e.target.onerror = null;
-                e.target.src = "https://placehold.co/130x32/FFFFFF/0F172A?text=Tiger+Analytics";
-              }}
+              className="h-9 md:h-10 w-auto object-contain cursor-pointer"
             />
-
             <div className="h-7 w-[1.5px] bg-slate-200" />
-
             <img 
               src="/tiger-15th-logo.png" 
               alt="15 Years Powered by Ingenuity" 
-              className="h-11 md:h-12 w-auto object-contain bg-white mix-blend-multiply"
-              onError={(e) => {
-                e.target.onerror = null;
-                e.target.src = "https://placehold.co/100x32/FFFFFF/E01A8A?text=15+Years";
-              }}
+              className="h-11 md:h-12 w-auto object-contain"
             />
           </div>
 
@@ -68,11 +58,11 @@ export default function App() {
           <div className="flex items-center gap-5">
             <div className="flex items-center px-4 py-1.5 rounded-full bg-white border border-[#00F0FF] shadow-sm">
               <span className="text-xs font-semibold text-[#0F172A] tracking-wide">
-                {currentUser?.name || (isAdmin ? 'Admin' : 'Karthikeyan Jayaprakash')}
+                {currentUser?.name || 'Karthikeyan Jayaprakash'}
               </span>
               <span className="mx-2 text-xs font-light text-slate-300">|</span>
               <span className="text-xs font-bold text-[#E01A8A]">
-                {currentUser?.role || (isAdmin ? 'Portal Admin' : 'Demand Creation')}
+                {currentUser?.role || 'Portal Admin'}
               </span>
             </div>
 
@@ -88,8 +78,8 @@ export default function App() {
         <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-gradient-to-r from-[#00F0FF] via-[#8F00FF] to-[#E01A8A] opacity-90" />
       </header>
 
-      {/* Sub-Navigation Tabs */}
-      <nav className="bg-white/80 backdrop-blur-sm border-b border-slate-200 px-6 md:px-8 shadow-inner z-10 relative">
+      {/* Navigation Tabs */}
+      <nav className="bg-white/90 backdrop-blur-sm border-b border-slate-200 px-6 md:px-8 shadow-inner z-10 relative">
         <div className="max-w-[1400px] mx-auto flex gap-6">
           {!isAdmin && (
             <button
@@ -138,16 +128,16 @@ export default function App() {
               }`}
             >
               <span>Master Data (Super Admin)</span>
-              <span className="text-[9px] px-1.5 py-0.5 rounded-full border border-[#E01A8A] text-[#E01A8A]">RESTRICTED</span>
+              <span className="text-[9px] px-1.5 py-0.5 rounded-full border border-[#E01A8A] text-[#E01A8A] font-extrabold">RESTRICTED</span>
             </button>
           )}
         </div>
       </nav>
 
       {/* Main Workspace Canvas */}
-      <main className="flex-1 overflow-hidden relative">
+      <main className="flex-1 overflow-y-auto relative">
         {view === 'form' && !isAdmin && (
-          <div className="p-6 md:p-8 overflow-y-auto h-full">
+          <div className="p-6 md:p-8">
             {lastSubmittedId && (
               <div className="max-w-5xl mx-auto mb-6 p-4 bg-emerald-50 text-emerald-900 border border-emerald-200 rounded-xl text-xs flex justify-between items-center shadow-sm">
                 <span>
@@ -183,7 +173,7 @@ export default function App() {
         )}
 
         {view === 'master_data' && isSuperAdmin && (
-          <MasterDataGovernance />
+          <MasterDataGovernance currentUser={currentUser} />
         )}
       </main>
     </div>
