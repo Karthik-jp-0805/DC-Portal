@@ -17,19 +17,16 @@ export default function AdminReportsDashboard() {
   const [selectedFormat, setSelectedFormat] = useState('XLSX');
 
   // Dynamic values extracted from dataset for 8 dimensions
-```javascript
-const cascadingOptionsMap = useMemo(() => ({
-  'Domain': [...new Set(REPORT_RECORDS.map(d => d.domain).filter(Boolean))],
-  'Project Group': [...new Set(REPORT_RECORDS.map(d => d.projectGroup).filter(Boolean))],
-  'Project Name': [...new Set(REPORT_RECORDS.map(d => d.projectName).filter(Boolean))],
-  'Demand Type': [...new Set(REPORT_RECORDS.map(d => d.demandType).filter(Boolean))],
-  'Client Partner': [...new Set(REPORT_RECORDS.map(d => d.clientPartner).filter(Boolean))],
-  'Delivery Partner': [...new Set(REPORT_RECORDS.map(d => d.deliveryPartner).filter(Boolean))],
-  'Program Type': [...new Set(REPORT_RECORDS.map(d => d.programType).filter(Boolean))],
-  'Billing Type': [...new Set(REPORT_RECORDS.map(d => d.billingType).filter(Boolean))],
-
-}), []);
-```
+  const cascadingOptionsMap = useMemo(() => ({
+    'Domain': Array.from(new Set(REPORT_RECORDS.map(d => d.domain))),
+    'Project Group': Array.from(new Set(REPORT_RECORDS.map(d => d.projectGroup))),
+    'Project Name': Array.from(new Set(REPORT_RECORDS.map(d => d.projectName))),
+    'Demand Type': Array.from(new Set(REPORT_RECORDS.map(d => d.DemandType))),
+    'Client Partner': Array.from(new Set(REPORT_RECORDS.map(d => d.ClientPartner))),
+    'Delivery Partner': Array.from(new Set(REPORT_RECORDS.map(d => d.DeliveryPartner))),
+    'Program Type': Array.from(new Set(REPORT_RECORDS.map(d => d.ProgramType))),
+    'Billing Type': Array.from(new Set(REPORT_RECORDS.map(d => d.BillingType))),
+  }), []);
 
   const handleCategoryChange = (e) => {
     setFilterCategory(e.target.value);
