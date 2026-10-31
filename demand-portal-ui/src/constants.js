@@ -78,6 +78,9 @@ export const DEMAND_TYPES = [
   "New", "Replacement", "Replacement - POP", "Investment - Delivery", "Investment - Technical Delivery"
 ];
 
+export const PROGRAM_TYPES = ["Managed Program", "COE", "Team Extension"];
+export const BILLING_TYPES = ["Fixed Price", "T&M", "Retainer"];
+
 export const ROLES_LIST = [
   "Data_Modeler", "Data_Steward", "Domain_Expert", "Quality_Engineer", "Data_Engineer",
   "Lead_Data_Engineer", "Data_Analyst", "Data_Project_Manager", "Data_Architect", "Scrum_Master",
@@ -134,3 +137,30 @@ export const DELIVERY_PARTNERS = [
 export const CLIENT_PARTNERS = [
   "Aarohan Singh", "Parag Shah", "Parish Jain", "Raghul Muthuswamy", "Rohit Kandhewal", "Suresh Ponnuru", "Other"
 ];
+
+const normalizeProjectOption = (option) => option.replace(/^\d+[\.\-\s]+/, '').trim();
+
+export const PROJECT_GROUP_OPTIONS = PROJECT_GROUPS.map(normalizeProjectOption);
+export const PROJECT_NAME_OPTIONS = PROJECT_NAMES.map(normalizeProjectOption);
+
+export const MASTER_FILTER_OPTIONS = {
+  Domain: DOMAINS,
+  'Project Group': PROJECT_GROUP_OPTIONS,
+  'Project Name': PROJECT_NAME_OPTIONS,
+  'Demand Type': DEMAND_TYPES,
+  'Client Partner': CLIENT_PARTNERS,
+  'Delivery Partner': DELIVERY_PARTNERS,
+  'Program Type': PROGRAM_TYPES,
+  'Billing Type': BILLING_TYPES
+};
+
+export const FILTER_FIELD_KEYS = {
+  Domain: 'domain',
+  'Project Group': 'projectGroup',
+  'Project Name': 'projectName',
+  'Demand Type': 'demandType',
+  'Client Partner': 'clientPartner',
+  'Delivery Partner': 'deliveryPartner',
+  'Program Type': 'programType',
+  'Billing Type': 'billingType'
+};

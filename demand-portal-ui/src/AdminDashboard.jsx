@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from 'react';
+import { FILTER_FIELD_KEYS, MASTER_FILTER_OPTIONS } from './constants';
 
 // Seed master demands with R-000101 standardized demand ID sequences
 const INITIAL_DEMANDS = [
@@ -139,17 +140,7 @@ export default function AdminDashboard({ currentUser }) {
   const [filterValue, setFilterValue] = useState('All');
   const [searchQuery, setSearchQuery] = useState('');
 
-  // Slicer mapping dictionary for all 8 requested dimensions
-  const cascadingOptionsMap = useMemo(() => ({
-    'Domain': Array.from(new Set(demands.map(d => d.domain).filter(Boolean))),
-    'Project Group': Array.from(new Set(demands.map(d => d.projectGroup).filter(Boolean))),
-    'Project Name': Array.from(new Set(demands.map(d => d.projectName).filter(Boolean))),
-    'Demand Type': Array.from(new Set(demands.map(d => d.demandType).filter(Boolean))),
-    'Client Partner': Array.from(new Set(demands.map(d => d.clientPartner).filter(Boolean))),
-    'Delivery Partner': Array.from(new Set(demands.map(d => d.deliveryPartner).filter(Boolean))),
-    'Program Type': Array.from(new Set(demands.map(d => d.programType).filter(Boolean))),
-    'Billing Type': Array.from(new Set(demands.map(d => d.billingType).filter(Boolean))),
-  }), [demands]);
+  const cascadingOptionsMap = MASTER_FILTER_OPTIONS;
 
   const handleCategoryChange = (e) => {
     setFilterCategory(e.target.value);
@@ -159,20 +150,8 @@ export default function AdminDashboard({ currentUser }) {
   // Filtered dataset application
   const filteredDemands = useMemo(() => {
     return demands.filter((d) => {
-      let matchesCategory = true;
-      if (filterValue !== 'All') {
-        switch (filterCategory) {
-          case 'Domain': matchesCategory = d.domain === filterValue; break;
-          case 'Project Group': matchesCategory = d.projectGroup === filterValue; break;
-          case 'Project Name': matchesCategory = d.projectName === filterValue; break;
-          case 'Demand Type': matchesCategory = d.demandType === filterValue; break;
-          case 'Client Partner': matchesCategory = d.clientPartner === filterValue; break;
-          case 'Delivery Partner': matchesCategory = d.deliveryPartner === filterValue; break;
-          case 'Program Type': matchesCategory = d.programType === filterValue; break;
-          case 'Billing Type': matchesCategory = d.billingType === filterValue; break;
-          default: matchesCategory = true;
-        }
-      }
+      const field = FILTER_FIELD_KEYS[filterCategory];
+      const matchesCategory = filterValue === 'All' || (field && d[field] === filterValue);
 
       const q = searchQuery.trim().toLowerCase();
       const matchesSearch = !q ||

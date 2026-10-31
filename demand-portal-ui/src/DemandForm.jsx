@@ -1,8 +1,9 @@
 import React, { useState, useMemo, useRef, useEffect } from 'react';
 import {
-  DOMAINS, SERVICES, PROJECT_GROUPS, PROJECT_NAMES, DEMAND_TYPES,
+  DOMAINS, SERVICES, PROJECT_GROUP_OPTIONS, PROJECT_NAME_OPTIONS, DEMAND_TYPES,
   ROLES_LIST, STREAMS, PRIORITIES, PROBABILITIES, BILL_RATES,
-  REPLACEMENT_REASONS, NEW_PROJECT_GROUPS, DELIVERY_PARTNERS, CLIENT_PARTNERS
+  REPLACEMENT_REASONS, NEW_PROJECT_GROUPS, DELIVERY_PARTNERS, CLIENT_PARTNERS,
+  PROGRAM_TYPES, BILLING_TYPES
 } from './constants';
 
 // Sanitization utilities
@@ -288,8 +289,8 @@ export default function DemandForm({ currentUser, onSubmitted }) {
   }, [formData.matrixPositions]);
 
   // Master Lists
-  const masterProjectGroups = useMemo(() => (PROJECT_GROUPS || []).map(sanitizeProjectLabel), []);
-  const masterProjectNames = useMemo(() => (PROJECT_NAMES || []).map(sanitizeProjectLabel), []);
+  const masterProjectGroups = PROJECT_GROUP_OPTIONS;
+  const masterProjectNames = PROJECT_NAME_OPTIONS;
   
   const masterRolesList = useMemo(() => {
     const raw = (ROLES_LIST && ROLES_LIST.length > 0) ? ROLES_LIST : [
@@ -545,7 +546,7 @@ export default function DemandForm({ currentUser, onSubmitted }) {
               <div>
                 <label className="block text-sm font-semibold text-[#0F172A] mb-3">Domain <span className="text-[#E01A8A]">*</span></label>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5">
-                  {['Consumer and Commercial (C&C)', 'Supply Chain (SC)', 'Finance', 'Agro', 'ESG & EHS', 'IBP', 'AI Platforms', 'Data Platforms', 'EDF', 'Sector'].map((d) => (
+                  {DOMAINS.map((d) => (
                     <label key={d} onClick={() => handleChange('domain', d)} className={`flex items-center gap-3 px-4 py-2.5 rounded-xl border text-xs font-medium cursor-pointer transition-all ${
                       formData.domain === d ? 'bg-[#00F0FF]/15 text-[#0F172A] font-bold border-[#00F0FF] shadow-sm' : 'bg-white text-[#1E293B] border-slate-200 hover:border-[#00F0FF] hover:bg-slate-50'
                     }`}>
@@ -648,7 +649,7 @@ export default function DemandForm({ currentUser, onSubmitted }) {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
                     <label className="block text-xs font-semibold text-[#1E293B] mb-2">Program Type <span className="text-[#E01A8A]">*</span></label>
-                    <div className="flex flex-col gap-2">{['Managed Program', 'COE', 'Team Extension'].map(type => (
+                    <div className="flex flex-col gap-2">{PROGRAM_TYPES.map(type => (
                       <label key={type} onClick={() => handleChange('programType', type)} className="flex items-center text-xs text-[#1E293B] cursor-pointer">
                         <span className={`w-3.5 h-3.5 rounded-full border mr-2 flex items-center justify-center ${formData.programType === type ? 'border-[#00F0FF] bg-[#00F0FF]' : 'border-slate-300'}`} />{type}
                       </label>
@@ -656,7 +657,7 @@ export default function DemandForm({ currentUser, onSubmitted }) {
                   </div>
                   <div>
                     <label className="block text-xs font-semibold text-[#1E293B] mb-2">Billing Type <span className="text-[#E01A8A]">*</span></label>
-                    <div className="flex flex-col gap-2">{['Fixed Price', 'T&M', 'Retainer'].map(type => (
+                    <div className="flex flex-col gap-2">{BILLING_TYPES.map(type => (
                       <label key={type} onClick={() => handleChange('billingType', type)} className="flex items-center text-xs text-[#1E293B] cursor-pointer">
                         <span className={`w-3.5 h-3.5 rounded-full border mr-2 flex items-center justify-center ${formData.billingType === type ? 'border-[#00F0FF] bg-[#00F0FF]' : 'border-slate-300'}`} />{type}
                       </label>
